@@ -7,11 +7,8 @@ customBtn.addEventListener("click", function() {
 });
 
 
-realFileBtn.addEventListener("change", function() {
-	if (realFileBtn.value) {
-		//regex to extract file name without path
-		customTxt.innerHTML = realFileBtn.value.match(/[\/\\]([\w\d\s\.\-\(\)]+)$/)[1];
-	} else {
-		customTxt.innerHTML = "No file chosen, yet.";
-	}
-});
+// realFileBtn.addEventListener("change", function() {
+// });
+
+console.log("helo");
+realFileBtn.click();
