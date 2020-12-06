@@ -1,35 +1,17 @@
+const realFileBtn = document.getElementById("real-file");
+const customBtn = document.getElementById("custom-button");
+const customTxt = document.getElementById("custom-text");
 
-if (hasGetUserMedia()) {
+customBtn.addEventListener("click", function() {
+	realFileBtn.click();
+});
 
-	let vidConstraints = {
-		video: true,
-	};
 
-	navigator.mediaDevices.getUserMedia(vidConstraints).then(stream => {
-		document.getElementById("video").srcObject = stream;
-	}).catch(console.error);
-
-} else {
-	alert("getUserMedia() is not supported by your browser");
-}
-
-function hasGetUserMedia() {
-	return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-}
-
-let screenshotButton = document.getElementById("screenshot-button");
-let img = document.getElementById("img");
-let video = document.getElementById("video");
-let canvas = document.createElement("canvas");
-
-screenshotButton.onclick = video.onclick = function () {
-	canvas.width = video.videoWidth;
-	canvas.height = video.videoHeight;
-	canvas.getContext("2d").drawImage(video, 0, 0);
-	img.src = canvas.toDataURL("image/webp");
-};
-
-function handleSuccess(stream) {
-	screenshotButton.disabled = false;
-	video.srcObject = stream;
-}
+realFileBtn.addEventListener("change", function() {
+	if (realFileBtn.value) {
+		//regex to extract file name without path
+		customTxt.innerHTML = realFileBtn.value.match(/[\/\\]([\w\d\s\.\-\(\)]+)$/)[1];
+	} else {
+		customTxt.innerHTML = "No file chosen, yet.";
+	}
+});
