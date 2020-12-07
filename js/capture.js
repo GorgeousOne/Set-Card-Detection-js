@@ -1,14 +1,41 @@
-const realFileBtn = document.getElementById("real-file");
-const customBtn = document.getElementById("custom-button");
-const customTxt = document.getElementById("custom-text");
+let  fileSelector = document.getElementById("real-file");
+let fancyButton = document.getElementById("custom-button");
 
-customBtn.addEventListener("click", function() {
-	realFileBtn.click();
+let imageBox = document.getElementById("img-box");
+let imageView = document.getElementById("image-view");
+
+fancyButton.addEventListener("click", function() {
+	fileSelector.click();
 });
 
 
-// realFileBtn.addEventListener("change", function() {
-// });
+fileSelector.addEventListener("change", function() {
 
-console.log("helo");
-realFileBtn.click();
+	if (fileSelector.value) {
+
+		showImageView();
+
+		let file = fileSelector.files[0];
+		let reader = new FileReader();
+
+		reader.addEventListener("load", function () {
+			imageView.src = reader.result;
+		});
+
+		if (file) {
+			reader.readAsDataURL(file)
+		}
+	}
+});
+
+function showImageView() {
+
+	fancyButton.style.display= "none";
+
+	imageBox.style.display = "block";
+	imageView.style.display = "block";
+
+	document.body.style.backgroundColor = "#161616";
+	imageView.src = fileSelector.value;
+
+}

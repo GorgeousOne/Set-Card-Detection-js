@@ -12,8 +12,11 @@
 </head>
 
 <body>
-	<input type="file" id="real-file" accept="image/*" hidden="hidden" />
+	<input type="file" id="real-file" accept="image/*" style="display: none;" />
 	<button type="button" id="custom-button">Take a picture of Set cards</button>
+	<div id="img-box" style="display: none;">
+		<img id="image-view" src="" alt="set image">
+	</div>
 	<script src="js/capture.js"></script>
 
 </body>
