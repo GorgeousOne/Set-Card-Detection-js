@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Hello OpenCV.js</title>
+</head>
+<body>
+<h2>Hello OpenCV.js</h2>
+<p id="status">OpenCV.js is loading...</p>
+
+<div>
+	<!-- we create 1 image element, 1 canvas element and an image source -->
+	<div class="inputoutput">
+		<img id="imageSrc" alt="No Image" />
+		<div class="caption">imageSrc <input type="file" id="fileInput" name="file"/>
+		</div>
+	</div>
+	<div class="inputoutput">
+		<canvas id="canvasOutput" ></canvas>
+		<div class="caption">canvasOutput</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+	// Here starts javascript. We save the loaded image in a variable called
+	// imgElement
+	let fileInput = document.getElementById('fileInput');
+	let imgElement = document.getElementById('imageSrc');
+
+	// We add a listener which starts when an image is loaded
+	fileInput.addEventListener('change', (e) => {
+		imgElement.src = URL.createObjectURL(e.target.files[0]);
+	}, false);
+
+	imgElement.onload = function() {
+		// Image is loaded, we can start working with OpenCV
+
+		// We read the loaded image from imgElement and save it in a variable
+		// we could modify later with OpenCV functions
+		let mat = cv.imread(imgElement);
+		// We print the saved or modified image to the canvas element with id
+		// 'canvasOutput'
+		cv.imshow('canvasOutput', mat);
+		// Free memory
+		mat.delete();
+	};
+
+	function onOpenCvReady() {
+		document.getElementById('status').innerHTML = 'OpenCV.js is ready.';
+	}
+</script>
+<script async src="opencv.js" onload="onOpenCvReady();" type="text/javascript">
+</script>
+</body>
+</html>
