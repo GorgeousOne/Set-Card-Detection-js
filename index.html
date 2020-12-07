@@ -9,13 +9,17 @@
 	<meta name="theme-color" content="#fafafa">
 	<link rel="stylesheet" href="css/button.css">
 	<link rel="stylesheet" href="css/image.css">
+
+	<script async src="js/libs/opencv.js" type="text/javascript"></script>
+<!--	onload="function onOpenCvReady() {} onOpenCvReady();"-->
 </head>
 
 <body>
-	<input type="file" id="real-file" accept="image/*" style="display: none;" />
+	<input type="file" id="real-file" accept="image/*" style="display: none;"/>
 	<button type="button" id="custom-button">Take a picture of Set cards</button>
 	<div id="img-box" style="display: none;">
-		<img id="image-view" src="" alt="set image">
+		<img class="gallery" id="image-view" src="" alt="set image" style="display: none;">
+		<canvas class="gallery" id="canvas-output" style="display: none;"></canvas>
 	</div>
 	<script src="js/capture.js"></script>
 
