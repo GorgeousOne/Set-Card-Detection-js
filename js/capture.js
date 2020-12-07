@@ -28,10 +28,8 @@ fileInput.addEventListener("change", function () {
 
 imageView.onload = function () {
 
-	let mat = cv.imread(imageView);
-	mat = getImgResized(mat);
-
-	cv.imshow('canvas-output', mat);
+	let img = cv.imread(imageView);
+	startDetection(img);
 };
 
 function showImageView() {
@@ -40,6 +38,13 @@ function showImageView() {
 	// imageView.style.display = "block";
 	canvas.style.display = "block";
 	document.body.style.backgroundColor = "#16161d";
+}
+
+function startDetection(img) {
+
+	let scaledImg = getImgResized(img);
+	let imgGray = getBlurredGray(scaledImg)
+	cv.imshow('canvas-output', imgGray);
 }
 
 function getImgResized(img) {
@@ -57,4 +62,17 @@ function getImgResized(img) {
 		return imgResized
 	} else
 		return img
+}
+
+function getBlurredGray(img, kernelSize = 5) {
+
+	let blurredImg = new cv.Mat();
+	cv.GaussianBlur(img, blurredImg, new cv.Size(kernelSize, kernelSize), 0, 0, cv.BORDER_DEFAULT);
+
+	let grayImg = new cv.Mat();
+	cv.cvtColor(blurredImg, grayImg, cv.COLOR_BGR2GRAY);
+
+	blurredImg.delete();
+	return grayImg;
+	// return blurredImg;
 }
