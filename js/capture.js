@@ -11,24 +11,23 @@ fancyButton.addEventListener("click", function () {
 
 //imageView.addEventListener("load", function () {
 
-	// if (fileInput.value) {
-	// 	showImageView();
-	// 	imageView.src = URL.createObjectURL(fileInput.files[0]);
+// if (fileInput.value) {
+// 	showImageView();
+// 	imageView.src = URL.createObjectURL(fileInput.files[0]);
 
-		// let file = fileInput.files[0];
-		// let reader = new FileReader();
-		// reader.addEventListener("load", function () {
-		// 	imageView.src = reader.result;
-		// });
-		// if (file) {
-		// 	reader.readAsDataURL(file)
-		// }
-	// }
+// let file = fileInput.files[0];
+// let reader = new FileReader();
+// reader.addEventListener("load", function () {
+// 	imageView.src = reader.result;
+// });
+// if (file) {
+// 	reader.readAsDataURL(file)
+// }
+// }
 // });
 
 imageView.addEventListener("load", function () {
 
-	console.log("this loads");
 	let img = cv.imread(imageView);
 	startDetection(img);
 });
@@ -54,12 +53,25 @@ function startDetection(img) {
 	let imgMinExtent = Math.min(imgWidth, imgHeight);
 
 	let possibleShapes = findPossibleShapes(contours, imgMinExtent, scaledImg);
-	
+	let actualShapes = findActualShapes(possibleShapes);
+
+	let matVec = new cv.MatVector();
+
+	//didnt find a clear method for MatVector :(
+	for (let i = 0; i < actualShapes.length; i++) {
+		let shape = actualShapes[i];
+		matVec.push_back(shape.parentContour);
+		cv.drawContours(scaledImg, matVec, i, [255, 0, 0, 255], 2, cv.LINE_8);
+	}
+
+	matVec.delete();
+
 
 	cv.imshow('canvasOutput', scaledImg);
 
+	contours.delete();
 	img.delete();
-	scaledImg.delete();
+	// scaledImg.delete();
 	grayImg.delete();
 }
 
@@ -119,7 +131,6 @@ function findPossibleShapes(contours, imgMinExtent, canvas) {
 	let maxExtent = 0.90;
 
 	let possibleShapes = [];
-	// console.log(minBoundsSize, minMinRectSize, maxMinRectSize);
 
 	for (let i = 0; i < contours.size(); i++) {
 
@@ -166,7 +177,6 @@ function findPossibleShapes(contours, imgMinExtent, canvas) {
 
 		if (shapeExtent < minExtent) {
 			//orange - shape extent too small
-			console.log(shapeExtent);
 			cv.drawContours(canvas, contours, i, [255, 128, 0, 255], 1, cv.LINE_8);
 			continue;
 		}
@@ -177,14 +187,13 @@ function findPossibleShapes(contours, imgMinExtent, canvas) {
 			return;
 		}
 
-		cv.drawContours(canvas, contours, i, new cv.Scalar(255, 255, 255), 2, cv.LINE_8);
+		// cv.drawContours(canvas, contours, i, [255, 255, 255, 255], 2, cv.LINE_8);
 
 		let shape = new SetShape(contour, boundingRect, minRect);
 		shape.shapeType.shape = findShapeType(shapeExtent);
 		possibleShapes.push(shape);
 	}
 
-	contours.delete();
 	return possibleShapes;
 }
 
@@ -203,4 +212,101 @@ function getGreaterAspectRatio(minRect) {
 
 function findShapeType(boundsOccupation) {
 	return (boundsOccupation < 0.65) ? "diamond" : (boundsOccupation < 0.81) ? "squiggle" : "oval";
+}
+
+function findActualShapes(shapes) {
+
+	let uniqueShapes = [];
+
+	for (let shape of shapes) {
+
+		if (shape.childContour !== undefined) {
+			continue;
+		}
+
+		let isUnique = true;
+
+		for (let other of shapes) {
+
+			if (shape === other) {
+				continue;
+			}
+
+			let pointX = shape.contour.data32S[0];
+			let pointY = shape.contour.data32S[1];
+
+			if (cv.pointPolygonTest(other.contour, new cv.Point(pointX, pointY), false) > 0) {
+
+				other.childContour = shape.contour;
+				isUnique = false;
+				break;
+			}
+		}
+
+		if (isUnique) {
+			uniqueShapes.push(shape);
+			console.log("found another one");
+
+			for (let shape of uniqueShapes) {
+				shape.parentContour = growContour(shape.contour, shape.minExtent * 0.08);
+				if ("childContour" in shape) {
+					shape.childContour = growContour(shape.contour, -shape.minExtent * 0.08);
+				}
+			}
+		}
+	}
+
+	console.log("found " + uniqueShapes.length + " uniques");
+	return uniqueShapes;
+}
+
+//Returns a copy of the contour with every point expanded outwards by the given pixels (inwards for negative value).
+function growContour(contour, pixels) {
+
+	let newContour = contour.clone();
+
+	let prevPoint = getContourPoint(contour, 0);
+	let point = getContourPoint(contour, 2);
+	let nextPoint = getContourPoint(contour, 4);
+
+	let contourLength = contour.data32S.length;
+	for (let i = 6; i < contourLength + 6; i += 2) {
+
+		//predecessor and successor of a point are used to determine the direction to expand towards
+		let dist = getDistVec(prevPoint, nextPoint);
+
+		if (dist[0] !== 0 || dist[1] !== 0) {
+			let facing = getNormalOrtho(dist);
+			newContour.data32S[i % contourLength] = Math.floor(point[0] + facing[0] * pixels);
+			newContour.data32S[(i + 1) % contourLength] = Math.floor(point[1] + facing[1] * pixels);
+		}
+
+		prevPoint = point;
+		point = nextPoint;
+		nextPoint = getContourPoint(contour, i % contourLength)
+	}
+
+	return newContour;
+}
+
+function getContourPoint(contour, doubledIndex) {
+	return [
+		contour.data32S[doubledIndex],
+		contour.data32S[doubledIndex + 1]
+	];
+}
+
+function getDistVec(p0, p1) {
+	return [
+		p1[0] - p0[0],
+		p1[1] - p0[1]
+	];
+}
+
+function getNormalOrtho(p) {
+	let length = Math.sqrt(p[0] ** 2 + p[1] ** 2);
+	return [
+		p[1] / length,
+		-p[0] / length
+	];
 }

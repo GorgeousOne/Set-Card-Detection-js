@@ -12,8 +12,8 @@ class SetShape {
 		this.contour = contour;
 		this.bbox = bbox;
 		this.minRect = mineRect;
-		this.minExtent = Math.min(mineRect.width, mineRect.height);
-		this.maxExtent = Math.max(mineRect.width, mineRect.height);
+		this.minExtent = Math.min(mineRect.size.width, mineRect.size.height);
+		this.maxExtent = Math.max(mineRect.size.width, mineRect.size.height);
 
 		this.childContour = childContour;
 		this.parentContour = parentContour;
