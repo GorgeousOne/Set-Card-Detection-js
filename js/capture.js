@@ -1,19 +1,19 @@
 let fileInput = document.getElementById("real-file");
 let fancyButton = document.getElementById("custom-button");
 
-let imageBox = document.getElementById("img-box");
-let imageView = document.getElementById("image-view");
-let canvas = document.getElementById("canvas-output");
+// let imageBox = document.getElementById("img-container");
+let imageView = document.getElementById("imageView");
+let canvas = document.getElementById("canvasOutput");
 
 fancyButton.addEventListener("click", function () {
 	fileInput.click();
 });
 
-fileInput.addEventListener("change", function () {
+//imageView.addEventListener("load", function () {
 
-	if (fileInput.value) {
-		showImageView();
-		imageView.src = URL.createObjectURL(fileInput.files[0]);
+	// if (fileInput.value) {
+	// 	showImageView();
+	// 	imageView.src = URL.createObjectURL(fileInput.files[0]);
 
 		// let file = fileInput.files[0];
 		// let reader = new FileReader();
@@ -23,18 +23,19 @@ fileInput.addEventListener("change", function () {
 		// if (file) {
 		// 	reader.readAsDataURL(file)
 		// }
-	}
-});
+	// }
+// });
 
-imageView.onload = function () {
+imageView.addEventListener("load", function () {
 
+	console.log("this loads");
 	let img = cv.imread(imageView);
 	startDetection(img);
-};
+});
 
 function showImageView() {
 	fancyButton.style.display = "none";
-	imageBox.style.display = "block";
+	// imageBox.style.display = "block";
 	//imageView.style.display = "block";
 	canvas.style.display = "block";
 	document.body.style.backgroundColor = "#16161d";
@@ -43,17 +44,23 @@ function showImageView() {
 function startDetection(img) {
 
 	let scaledImg = getImgResized(img);
-	let imgGray = getBlurredGray(scaledImg);
 
-	let contours = findContours(imgGray);
-	let imgSize = img.size();
+	let grayImg = getImgBlurredGray(scaledImg);
+	let contours = findContours(grayImg);
+
+	let imgSize = scaledImg.size();
 	let imgWidth = imgSize.width;
 	let imgHeight = imgSize.height;
 	let imgMinExtent = Math.min(imgWidth, imgHeight);
 
 	let possibleShapes = findPossibleShapes(contours, imgMinExtent, scaledImg);
-	console.log("found potentials " + possibleShapes.length);
-	cv.imshow('canvas-output', scaledImg);
+	
+
+	cv.imshow('canvasOutput', scaledImg);
+
+	img.delete();
+	scaledImg.delete();
+	grayImg.delete();
 }
 
 function getImgResized(img) {
@@ -65,18 +72,17 @@ function getImgResized(img) {
 	let maxFactor = Math.floor(Math.max(imgWidth, imgWidth) / 1000);  // or whatever
 	let imgResized = new cv.Mat();
 
-	console.log(maxFactor, Math.floor(imgWidth / maxFactor));
-
 	if (maxFactor > 1) {
 		cv.resize(img, imgResized, new cv.Size(
 			Math.floor(imgWidth / maxFactor),
 			Math.floor(imgHeight / maxFactor)));
 		return imgResized;
+
 	} else
 		return img;
 }
 
-function getBlurredGray(img, kernelSize = 5) {
+function getImgBlurredGray(img, kernelSize = 5) {
 
 	let blurredImg = new cv.Mat();
 	let grayImg = new cv.Mat();
@@ -113,14 +119,12 @@ function findPossibleShapes(contours, imgMinExtent, canvas) {
 	let maxExtent = 0.90;
 
 	let possibleShapes = [];
-	console.log(minBoundsSize, minMinRectSize, maxMinRectSize);
+	// console.log(minBoundsSize, minMinRectSize, maxMinRectSize);
 
 	for (let i = 0; i < contours.size(); i++) {
 
 		let contour = contours.get(i);
 		let contourLength = contour.data32S.length;
-
-		cv.drawContours(canvas, contours, i, new cv.Scalar(255, 255, 255), 1, cv.LINE_8);
 
 		// ignore short contours
 		if (contourLength < minContourPoints) {
@@ -131,44 +135,56 @@ function findPossibleShapes(contours, imgMinExtent, canvas) {
 
 		// ignore small dots
 		if (boundingRect.width < minBoundsSize && boundingRect.height < minBoundsSize) {
+			cv.drawContours(canvas, contours, i, [0, 0, 0, 255], 1, cv.LINE_8);
 			continue;
 		}
 
 		let minRect = cv.minAreaRect(contour);
-		let rectWidth = minRect.width;
-		let rectHeight = minRect.height;
+		let rectWidth = minRect.size.width;
+		let rectHeight = minRect.size.height;
 
-		// ignore quiet thin things
 		if (rectWidth < minMinRectSize || rectHeight < minMinRectSize) {
+			//purple - minrect too thin
+			cv.drawContours(canvas, contours, i, [128, 0, 128, 255], 1, cv.LINE_8);
 			continue;
 		}
 
 		if (rectWidth > maxMinRectSize && rectHeight > maxMinRectSize) {
+			//blue - minrect too large
+			cv.drawContours(canvas, contours, i, [0, 0, 255, 255], 1, cv.LINE_8);
 			continue;
 		}
 
 		if (!ratioFits(minRect)) {
+			//green - minrect ratio unproportional
+			cv.drawContours(canvas, contours, i, [0, 128, 0, 255], 1, cv.LINE_8);
 			continue;
 		}
 
 		let area = cv.contourArea(contour);
-		let extent = area / (rectWidth * rectHeight);
+		let shapeExtent = area / (rectWidth * rectHeight);
 
-		if (extent < minExtent) {
+		if (shapeExtent < minExtent) {
+			//orange - shape extent too small
+			console.log(shapeExtent);
+			cv.drawContours(canvas, contours, i, [255, 128, 0, 255], 1, cv.LINE_8);
 			continue;
 		}
 
-		if (extent > maxExtent) {
+		if (shapeExtent > maxExtent) {
+			//red - shape extent too big
+			cv.drawContours(canvas, contours, i, [255, 0, 0, 255], 1, cv.LINE_8);
 			return;
 		}
 
 		cv.drawContours(canvas, contours, i, new cv.Scalar(255, 255, 255), 2, cv.LINE_8);
 
 		let shape = new SetShape(contour, boundingRect, minRect);
-		shape.shapeType.shape = findShapeType(extent);
+		shape.shapeType.shape = findShapeType(shapeExtent);
 		possibleShapes.push(shape);
 	}
 
+	contours.delete();
 	return possibleShapes;
 }
 
@@ -179,9 +195,9 @@ function ratioFits(rect) {
 	return minRatio < ratio < maxRatio;
 }
 
-function getGreaterAspectRatio(rect) {
-	let width = rect.width;
-	let height = rect.height;
+function getGreaterAspectRatio(minRect) {
+	let width = minRect.size.width;
+	let height = minRect.size.height;
 	return width > height ? (width / height) : (height / width);
 }
 

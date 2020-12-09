@@ -1,0 +1,27 @@
+/** {*/
+/*	margin: 0;*/
+/*	padding: 0;*/
+/*}*/
+
+/*#img-container {*/
+/*	position: absolute;*/
+/*	top: 0; right: 0; bottom: 0; left: 0;*/
+/*}*/
+
+canvas {
+	border: 1px solid white;
+}
+
+#canvasOutput {
+	position: absolute;
+	top:0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin:auto;
+
+	/*width: 100%;*/
+	/*height: 100%;*/
+	/*object-fit: contain;*/
+	/*margin: auto;*/
+}
