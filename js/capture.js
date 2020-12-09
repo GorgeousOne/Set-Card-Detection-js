@@ -56,12 +56,17 @@ function startDetection(img) {
 	let actualShapes = findActualShapes(possibleShapes);
 
 	let matVec = new cv.MatVector();
+	findShapesColorsShading(actualShapes, scaledImg);
 
 	//didnt find a clear method for MatVector :(
 	for (let i = 0; i < actualShapes.length; i++) {
 		let shape = actualShapes[i];
+		// matVec.push_back(shape.contour);
 		matVec.push_back(shape.parentContour);
-		cv.drawContours(scaledImg, matVec, i, [255, 0, 0, 255], 2, cv.LINE_8);
+		// matVec.push_back(shape.childContour);
+		cv.drawContours(scaledImg, matVec, i, getColorColor(shape), 2, cv.LINE_8);
+		// cv.drawContours(scaledImg, matVec, 3 * i + 1, [255, 0, 0, 255], 2, cv.LINE_8);
+		// cv.drawContours(scaledImg, matVec, 3 * i + 2, [0, 0, 0, 255], 2, cv.LINE_8);
 	}
 
 	matVec.delete();
@@ -73,6 +78,20 @@ function startDetection(img) {
 	img.delete();
 	// scaledImg.delete();
 	grayImg.delete();
+}
+
+function getColorColor(shape) {
+	switch (shape.color) {
+		case "red":
+			return [255, 0, 0, 255];
+		case "green":
+			return [0, 128, 0, 255];
+		case "purple":
+			return [128, 0, 255, 255];
+		default:
+			console.log("what color is this?", shape.color);
+			return undefined;
+	}
 }
 
 function getImgResized(img) {
@@ -248,7 +267,7 @@ function findActualShapes(shapes) {
 			console.log("found another one");
 
 			for (let shape of uniqueShapes) {
-				shape.parentContour = growContour(shape.contour, shape.minExtent * 0.08);
+				shape.parentContour = growContour(shape.contour, shape.minExtent * 0.2);
 				if ("childContour" in shape) {
 					shape.childContour = growContour(shape.contour, -shape.minExtent * 0.08);
 				}
@@ -283,7 +302,7 @@ function growContour(contour, pixels) {
 
 		prevPoint = point;
 		point = nextPoint;
-		nextPoint = getContourPoint(contour, i % contourLength)
+		nextPoint = getContourPoint(contour, i % contourLength);
 	}
 
 	return newContour;
@@ -309,4 +328,77 @@ function getNormalOrtho(p) {
 		p[1] / length,
 		-p[0] / length
 	];
+}
+
+function findShapesColorsShading(shapes, coloredImg) {
+
+	let white = [255, 255, 255, 255];
+	let black = [0, 0, 0, 255];
+
+	for (let shape of shapes) {
+
+		let matVec = new cv.MatVector();
+		matVec.push_back(shape.childContour);
+		matVec.push_back(shape.contour);
+		matVec.push_back(shape.parentContour);
+
+		let rect = cv.boundingRect(shape.parentContour);
+		let offset = new cv.Point(-rect.x, -rect.y);
+
+		let roi = coloredImg.roi(rect);
+		let roiSize = roi.size();
+		let mask = new cv.Mat.zeros(roiSize.height, roiSize.width, cv.CV_8U);
+
+		cv.drawContours(mask, matVec, 0, white, -1, cv.LINE_8, new cv.Mat(), 0, offset);
+		let meanInside = cv.mean(roi, mask);
+
+		cv.drawContours(mask, matVec, 1, white, -1, cv.LINE_8, new cv.Mat(), 0, offset);
+		cv.drawContours(mask, matVec, 0, black, -1, cv.LINE_8, new cv.Mat(), 0, offset);
+		let meanContour = cv.mean(roi, mask);
+
+		cv.drawContours(mask, matVec, 2, white, -1, cv.LINE_8, new cv.Mat(), 0, offset);
+		cv.drawContours(mask, matVec, 1, black, -1, cv.LINE_8, new cv.Mat(), 0, offset);
+		let meanOutside = cv.mean(roi, mask);
+
+		shape.color = findShapeColor(rgbToHls(meanContour));
+		shape.shading = findShading(rgbToHls(meanInside), rgbToHls(meanOutside));
+		console.log(shape.color, "detected");
+
+		roi.delete();
+		mask.delete();
+		// cv.drawContours(mask, matVec, 0, white, -1, cv.LINE_8, new cv.Mat(), 0, offset);
+		// cv.imshow('canvasOutput', mask);
+		// return;
+	}
+}
+
+function findShapeColor(hlsColor) {
+	let hue = hlsColor[0] * 360;
+	console.log(hue);
+
+	if (hue >= 350 || hue <= 20) {
+		return "red";
+	} else if (240 <= hue <= 330) {
+		return "purple";
+	} else if (30 <= hue <= 160) {
+		return "green";
+	} else {
+		console.log("no color found for", Math.floor(hue));
+		return "other";
+	}
+}
+
+function findShading(hslColorInside, hslColorOutside) {
+
+	let lightInside = hslColorInside[1] * 100;
+	let lightOutside = hslColorOutside[1] * 100;
+	let fallOff = lightOutside - lightInside;
+
+	if (fallOff < 4) {
+		return "open";
+	} else if (fallOff < 15) {
+		return "striped";
+	} else {
+		return "solid";
+	}
 }
