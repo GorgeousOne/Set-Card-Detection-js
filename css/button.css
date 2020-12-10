@@ -1,6 +1,5 @@
 
-#customButton {
-	width: 200px;
+.customButton {
 	height: 72px;
 
 	font-family: 'Roboto', sans-serif;
@@ -25,10 +24,9 @@
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	transform: translate(-50%, -50%);
 }
 
-#customButton:hover {
+.customButton:hover {
 	background-color: #2EE59D;
 	box-shadow: 0 15px 20px rgba(46, 229, 157, 0.4);
 	color: #fff;

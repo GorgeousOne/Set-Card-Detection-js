@@ -1,11 +1,17 @@
 let fileInput = document.getElementById("realFile");
-let fancyButton = document.getElementById("customButton");
+let takePicButton = document.getElementById("pictureButton");
+let loadExampleButton = document.getElementById("exampleButton");
 
 let imageView = document.getElementById("imageView");
 let canvas = document.getElementById("canvasOutput");
 
-fancyButton.addEventListener("click", function () {
+takePicButton.addEventListener("click", function () {
 	fileInput.click();
+});
+
+loadExampleButton.addEventListener("click", function () {
+	imageView.src = "res/test03.jpg";
+	showImageView()
 });
 
 fileInput.addEventListener("change", function () {
@@ -17,7 +23,8 @@ fileInput.addEventListener("change", function () {
 });
 
 function showImageView() {
-	fancyButton.style.display = "none";
+	takePicButton.style.display = "none";
+	loadExampleButton.style.display = "none";
 	canvas.style.display = "block";
 	document.body.style.backgroundColor = "#16161d";
 }
@@ -43,6 +50,8 @@ imageView.addEventListener("load", function () {
 	cv.imshow("canvasOutput", scaledImg);
 	scaledImg.delete();
 });
+
+
 
 function resizeImg(img) {
 
