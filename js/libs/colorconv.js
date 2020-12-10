@@ -7,11 +7,11 @@
  * @param   {number}  bgrColor       The blue green and red value in an array
  * @return  {Array}                  The HSL representation
  */
-function bgrToHsl(bgrColor) {
+function rgbToHsl(bgrColor) {
 
-	let blue = bgrColor[0] / 255;
+	let red = bgrColor[0] / 255;
 	let green = bgrColor[1] / 255;
-	let red = bgrColor[2] / 255;
+	let blue = bgrColor[2] / 255;
 
 	var max = Math.max(red, green, blue);
 	var min = Math.min(red, green, blue);
@@ -40,43 +40,38 @@ function bgrToHsl(bgrColor) {
 	return [hue, sat, light];
 }
 
-function rgbToHls(bgrColor) {
+/**
+ * Converts an HSL color value to RGB. Conversion formula
+ * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+ * Assumes h, s, and l are contained in the set [0, 1] and
+ * returns r, g, and b in the set [0, 255].
+ *
+ * @param   {number}  h       The hue
+ * @param   {number}  s       The saturation
+ * @param   {number}  l       The lightness
+ * @return  {Array}           The RGB representation
+ */
+function hslToRgb(h, s, l){
+	var r, g, b;
 
-	let blue = bgrColor[0];
-	let green = bgrColor[1];
-	let red = bgrColor[2];
+	if(s == 0){
+		r = g = b = l; // achromatic
+	}else{
+		var hue2rgb = function hue2rgb(p, q, t){
+			if(t < 0) t += 1;
+			if(t > 1) t -= 1;
+			if(t < 1/6) return p + (q - p) * 6 * t;
+			if(t < 1/2) return q;
+			if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+			return p;
+		}
 
-	let max = Math.max(red, green, blue);
-	let min = Math.min(red, green, blue);
-	let sum = (max + min);
-	let range = (max - min);
-	let light = sum / 2.0;
-
-	if (min === max)
-		return [0.0, light, 0.0];
-
-	let sat;
-
-	if (light <= 0.5) {
-		sat = range / sum;
-
-	} else {
-		sat = range / (2.0 - sum);
-		rc = (max - red) / range;
-		gc = (max - green) / range;
-		bc = (max - blue) / range;
+		var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+		var p = 2 * l - q;
+		r = hue2rgb(p, q, h + 1/3);
+		g = hue2rgb(p, q, h);
+		b = hue2rgb(p, q, h - 1/3);
 	}
 
-	let hue;
-
-	if (red === max) {
-		hue = bc - gc;
-	} else if (green === max) {
-		hue = 2.0 + rc - bc;
-	} else {
-		hue = 4.0 + gc - rc;
-	}
-
-	hue = (hue / 6.0) % 1.0;
-	return [hue, light, sat];
+	return [Math.round(b * 255), Math.round(g * 255), Math.round(r * 255), 255];
 }
