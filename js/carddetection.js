@@ -10,39 +10,27 @@ fancyButton.addEventListener("click", function () {
 
 fileInput.addEventListener("change", function () {
 
-	console.log("SOMETHIGN");
-	// if (fileInput.value) {
-
+	if (fileInput.value) {
 		showImageView();
 		imageView.src = URL.createObjectURL(fileInput.files[0]);
-		// let file = fileInput.files[0];
-		// let reader = new FileReader();
-		// reader.addEventListener("load", function () {
-		// 	imageView.src = reader.result;
-		// });
-		// if (file) {
-		// 	reader.readAsDataURL(file);
-		// }
-	// }
-});
-
-imageView.addEventListener("load", function () {
-
-	let img = cv.imread(imageView);
-	startDetection(img);
+	}
 });
 
 function showImageView() {
 	fancyButton.style.display = "none";
-	// imageView.style.display = "block";
 	canvas.style.display = "block";
 	document.body.style.backgroundColor = "#16161d";
+	console.log("call me now");
 }
+
+imageView.addEventListener("load", function () {
+	let img = cv.imread(imageView);
+	startDetection(img);
+});
 
 function startDetection(img) {
 
 	let scaledImg = getImgResized(img);
-
 	let grayImg = getImgBlurredGray(scaledImg);
 	let contours = findContours(grayImg);
 
@@ -80,7 +68,6 @@ function startDetection(img) {
 
 	contours.delete();
 	scaledImg.delete();
-	img.delete();
 	grayImg.delete();
 }
 
@@ -111,6 +98,7 @@ function getImgResized(img) {
 		cv.resize(img, imgResized, new cv.Size(
 			Math.floor(imgWidth / maxFactor),
 			Math.floor(imgHeight / maxFactor)));
+		img.delete();
 		return imgResized;
 
 	} else
@@ -277,7 +265,6 @@ function findActualShapes(shapes) {
 		}
 	}
 
-	console.log("found " + uniqueShapes.length + " uniques");
 	return uniqueShapes;
 }
 
