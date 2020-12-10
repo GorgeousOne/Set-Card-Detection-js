@@ -1,23 +1,10 @@
-html, body {
-	height: 100%;
-}
 
-.wrap {
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-#custom-button {
+#customButton {
 	width: 200px;
 	height: 72px;
-	/*width: 200px;*/
-	/*height: 65px;*/
 
 	font-family: 'Roboto', sans-serif;
 	font-size: 14px;
-	/*font-size: 14px;*/
 
 	text-transform: uppercase;
 	letter-spacing: 2.5px;
@@ -28,7 +15,6 @@ html, body {
 
 	background-color: #fff;
 	border: none;
-	/*border-radius: 45px;*/
 	border-radius: 9999px;
 
 	box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
@@ -42,7 +28,7 @@ html, body {
 	transform: translate(-50%, -50%);
 }
 
-#custom-button:hover {
+#customButton:hover {
 	background-color: #2EE59D;
 	box-shadow: 0 15px 20px rgba(46, 229, 157, 0.4);
 	color: #fff;
