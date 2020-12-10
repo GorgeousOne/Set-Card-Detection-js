@@ -6,6 +6,10 @@ class SetCard {
 	}
 
 	shapeCount() {
-		return len(this.shapes);
+		return this.shapes.length;
+	}
+
+	mid() {
+		return this.shapes[0].minRect.center;
 	}
 }
