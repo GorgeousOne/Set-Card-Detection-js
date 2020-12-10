@@ -10,7 +10,7 @@ takePicButton.addEventListener("click", function () {
 });
 
 loadExampleButton.addEventListener("click", function () {
-	imageView.src = "res/test03.jpg";
+	imageView.src = "res/test03.JPG";
 	showImageView()
 });
 
