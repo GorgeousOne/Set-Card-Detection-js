@@ -1,7 +1,6 @@
-let fileInput = document.getElementById("real-file");
-let fancyButton = document.getElementById("custom-button");
+let fileInput = document.getElementById("realFile");
+let fancyButton = document.getElementById("customButton");
 
-// let imageBox = document.getElementById("img-container");
 let imageView = document.getElementById("imageView");
 let canvas = document.getElementById("canvasOutput");
 
@@ -9,21 +8,22 @@ fancyButton.addEventListener("click", function () {
 	fileInput.click();
 });
 
-imageView.addEventListener("load", function () {
+fileInput.addEventListener("change", function () {
 
-if (fileInput.value) {
-	showImageView();
-	imageView.src = URL.createObjectURL(fileInput.files[0]);
+	console.log("SOMETHIGN");
+	// if (fileInput.value) {
 
-let file = fileInput.files[0];
-let reader = new FileReader();
-reader.addEventListener("load", function () {
-	imageView.src = reader.result;
-});
-if (file) {
-	reader.readAsDataURL(file)
-}
-}
+		showImageView();
+		imageView.src = URL.createObjectURL(fileInput.files[0]);
+		// let file = fileInput.files[0];
+		// let reader = new FileReader();
+		// reader.addEventListener("load", function () {
+		// 	imageView.src = reader.result;
+		// });
+		// if (file) {
+		// 	reader.readAsDataURL(file);
+		// }
+	// }
 });
 
 imageView.addEventListener("load", function () {
@@ -34,8 +34,7 @@ imageView.addEventListener("load", function () {
 
 function showImageView() {
 	fancyButton.style.display = "none";
-	// imageBox.style.display = "block";
-	//imageView.style.display = "block";
+	// imageView.style.display = "block";
 	canvas.style.display = "block";
 	document.body.style.backgroundColor = "#16161d";
 }
@@ -80,8 +79,8 @@ function startDetection(img) {
 	cv.imshow('canvasOutput', scaledImg);
 
 	contours.delete();
+	scaledImg.delete();
 	img.delete();
-	// scaledImg.delete();
 	grayImg.delete();
 }
 

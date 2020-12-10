@@ -7,8 +7,8 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="theme-color" content="#fafafa">
-<!--	<link rel="stylesheet" href="css/button.css">-->
-	<link rel="stylesheet" href="css/canvas.css">
+	<link rel="stylesheet" href="css/button.css">
+	<link rel="stylesheet" href="css/display.css">
 
 	<style>
 		.invisible {
@@ -20,14 +20,15 @@
 </head>
 
 <body>
-	<input class="invisible" type="file" id="real-file" accept="image/*"/>
-	<button class="invisible" type="button" id="custom-button">Take a picture of Set cards</button>
+	<input class="invisible" type="file" id="realFile" accept="image/*"/>
+	<button id="customButton" type="button" >Take a picture of Set cards</button>
 
-	<img id="imageView" src="res/test07.JPG" alt="set image" style="display: none;">
-	<canvas id="canvasOutput"></canvas>
+	<img class="invisible" id="imageView" src="" alt="set image" >
+	<canvas class="invisible" id="canvasOutput"></canvas>
 
 	<script src="js/shapetype.js"></script>
 	<script src="js/setshape.js"></script>
+	<script src="js/setcard.js"></script>
 	<script src="js/libs/colorconv.js"></script>
 	<script src="js/capture.js"></script>
 </body>
