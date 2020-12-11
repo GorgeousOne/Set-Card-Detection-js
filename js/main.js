@@ -11,8 +11,7 @@ takePicButton.addEventListener("click", function () {
 
 loadExampleButton.addEventListener("click", function () {
 
-	let examples = ["test03.jpg", "test42.jpg", "test43.jpg", "test44.jpg", ];
-	imageView.src = "res/" + examples[Math.floor(Math.random() * examples.length)];
+	imageView.src = "res/test" + (10 + Math.floor(Math.random() * 5)) + ".jpg";
 	showImageView()
 });
 
@@ -139,7 +138,7 @@ function drawLineBetween(card1, card2, image, color, width) {
 	let mid1 = card1.mid();
 	let mid2 = card2.mid();
 
-	cv.circle(image, mid1, 1.618*width, color, -1, cv.LINE_AA);
-	cv.circle(image, mid2, 1.618*width, color, -1, cv.LINE_AA);
+	cv.circle(image, mid1, 2*width, color, -1, cv.LINE_AA);
+	cv.circle(image, mid2, 2*width, color, -1, cv.LINE_AA);
 	cv.line(image, mid1, mid2, color, width, cv.LINE_AA);
 }
