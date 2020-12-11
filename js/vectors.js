@@ -3,8 +3,12 @@ function cloneVec(vec) {
 	return Object.assign({}, vec);
 }
 
+function lengthVec(vec) {
+	return Math.sqrt(vec.x ** 2 + vec.y ** 2);
+}
+
 function normVec(vec) {
-	length = Math.sqrt(vec.x ** 2 + vec.y ** 2);
+	length = lengthVec(vec);
 	vec.x /= length;
 	vec.y /= length;
 	return vec

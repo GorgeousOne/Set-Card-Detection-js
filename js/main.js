@@ -10,7 +10,9 @@ takePicButton.addEventListener("click", function () {
 });
 
 loadExampleButton.addEventListener("click", function () {
-	imageView.src = "res/test03.JPG";
+
+	let examples = ["test03.jpg", "test42.jpg", "test43.jpg", "test44.jpg", ];
+	imageView.src = "res/" + examples[Math.floor(Math.random() * examples.length)];
 	showImageView()
 });
 
@@ -37,9 +39,6 @@ imageView.addEventListener("load", function () {
 
 	if (cards.length === 0) {
 		console.log("No card found in this image");
-	}else {
-		console.log("found", cards.length, "cards");
-		// displayCards(cards, scaledImg);
 	}
 
 	let sets = findSets(cards);
@@ -50,8 +49,6 @@ imageView.addEventListener("load", function () {
 	cv.imshow("canvasOutput", scaledImg);
 	scaledImg.delete();
 });
-
-
 
 function resizeImg(img) {
 
@@ -108,10 +105,32 @@ function displaySets(sets, image) {
 		let set = sets[j];
 		let rndColor = colors[j];
 
-		drawLineBetween(set[0], set[1], image, rndColor, 3);
-		drawLineBetween(set[1], set[2], image, rndColor, 3);
-		// cv.line(image, set[0].mid(), set[1].mid(), rndColor, 4);
-		// cv.line(image, set[1].mid(), set[2].mid(), rndColor, 4);
+		let mid0 = set[0].mid();
+		let mid1 = set[1].mid();
+		let mid2 = set[2].mid();
+
+		let dist0 = lengthVec(subVec(cloneVec(mid0), mid1));
+		let dist1 = lengthVec(subVec(cloneVec(mid1), mid2));
+		let dist2 = lengthVec(subVec(cloneVec(mid2), mid0));
+
+		if (dist0 < dist1) {
+			drawLineBetween(set[0], set[1], image, rndColor, 3);
+
+			if (dist1 < dist2) {
+				drawLineBetween(set[1], set[2], image, rndColor, 3);
+			}else {
+				drawLineBetween(set[2], set[0], image, rndColor, 3);
+			}
+
+		}else {
+			drawLineBetween(set[1], set[2], image, rndColor, 3);
+
+			if (dist0 < dist2) {
+				drawLineBetween(set[0], set[1], image, rndColor, 3);
+			}else {
+				drawLineBetween(set[2], set[0], image, rndColor, 3);
+			}
+		}
 	}
 }
 

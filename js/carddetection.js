@@ -10,8 +10,6 @@ function detectSetCards(image) {
 	let imgMinLength = Math.min(imgWidth, imgHeight);
 
 	let possibleShapes = findPossibleShapes(contours, imgMinLength, image);
-	console.log(possibleShapes + " lol");
-
 	let actualShapes = filterActualShapes(possibleShapes);
 
 	findShapeColorsAndShading(actualShapes, image);
@@ -121,7 +119,6 @@ function findPossibleShapes(contours, imgMinLength, canvas) {
 		possibleShapes.push(shape);
 	}
 
-	console.log("what am i returning here? ", possibleShapes);
 	return possibleShapes;
 }
 
