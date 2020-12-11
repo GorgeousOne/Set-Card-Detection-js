@@ -108,7 +108,19 @@ function displaySets(sets, image) {
 		let set = sets[j];
 		let rndColor = colors[j];
 
-		cv.line(image, set[0].mid(), set[1].mid(), rndColor, 2);
-		cv.line(image, set[1].mid(), set[2].mid(), rndColor, 2);
+		drawLineBetween(set[0], set[1], image, rndColor, 3);
+		drawLineBetween(set[1], set[2], image, rndColor, 3);
+		// cv.line(image, set[0].mid(), set[1].mid(), rndColor, 4);
+		// cv.line(image, set[1].mid(), set[2].mid(), rndColor, 4);
 	}
+}
+
+function drawLineBetween(card1, card2, image, color, width) {
+
+	let mid1 = card1.mid();
+	let mid2 = card2.mid();
+
+	cv.circle(image, mid1, 1.618*width, color, -1, cv.LINE_AA);
+	cv.circle(image, mid2, 1.618*width, color, -1, cv.LINE_AA);
+	cv.line(image, mid1, mid2, color, width, cv.LINE_AA);
 }

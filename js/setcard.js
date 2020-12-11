@@ -10,6 +10,13 @@ class SetCard {
 	}
 
 	mid() {
-		return this.shapes[0].minRect.center;
+		let center = new cv.Point();
+
+		for (let shape of this.shapes) {
+			addVec(center, shape.minRect.center);
+		}
+
+		multVec(center, 1 / this.shapes.length)
+		return center;
 	}
 }

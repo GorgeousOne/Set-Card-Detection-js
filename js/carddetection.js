@@ -7,9 +7,11 @@ function detectSetCards(image) {
 	let imgSize = image.size();
 	let imgWidth = imgSize.width;
 	let imgHeight = imgSize.height;
-	let imgMinExtent = Math.min(imgWidth, imgHeight);
+	let imgMinLength = Math.min(imgWidth, imgHeight);
 
-	let possibleShapes = findPossibleShapes(contours, imgMinExtent, image);
+	let possibleShapes = findPossibleShapes(contours, imgMinLength, image);
+	console.log(possibleShapes + " lol");
+
 	let actualShapes = filterActualShapes(possibleShapes);
 
 	findShapeColorsAndShading(actualShapes, image);
@@ -46,13 +48,13 @@ function findContours(imgGray) {
 	return contours;
 }
 
-function findPossibleShapes(contours, imgMinExtent, canvas) {
+function findPossibleShapes(contours, imgMinLength, canvas) {
 
-	let minContourPoints = imgMinExtent * 0.04;
+	let minContourPoints = imgMinLength * 0.04;
 
-	let minBoundsSize = imgMinExtent * 0.03;
-	let minMinRectSize = imgMinExtent * 0.025;
-	let maxMinRectSize = imgMinExtent * 0.19;
+	let minBoundsSize = imgMinLength * 0.03;
+	let minMinRectSize = imgMinLength * 0.025;
+	let maxMinRectSize = imgMinLength * 0.19;
 	let minExtent = 0.55;
 	let maxExtent = 0.90;
 
@@ -110,7 +112,7 @@ function findPossibleShapes(contours, imgMinExtent, canvas) {
 		if (shapeExtent > maxExtent) {
 			//red - shape extent too big
 			// cv.drawContours(canvas, contours, i, [255, 0, 0, 255], 1, cv.LINE_8);
-			return;
+			continue;
 		}
 
 		// cv.drawContours(canvas, contours, i, [255, 255, 255, 255], 2, cv.LINE_8);
@@ -119,6 +121,7 @@ function findPossibleShapes(contours, imgMinExtent, canvas) {
 		possibleShapes.push(shape);
 	}
 
+	console.log("what am i returning here? ", possibleShapes);
 	return possibleShapes;
 }
 
@@ -172,9 +175,9 @@ function filterActualShapes(shapes) {
 			uniqueShapes.push(shape);
 
 			for (let shape of uniqueShapes) {
-				shape.parentContour = growContour(shape.contour, shape.minExtent * 0.2);
+				shape.parentContour = growContour(shape.contour, shape.minLength * 0.2);
 				if ("childContour" in shape) {
-					shape.childContour = growContour(shape.contour, shape.minExtent * -0.1);
+					shape.childContour = growContour(shape.contour, shape.minLength * -0.1);
 				}
 			}
 		}
@@ -327,7 +330,7 @@ function findSetCards(shapes, canvas) {
 
 		// let mid = shape.minRect.center;
 		// cv.circle(canvas, mid, 1, white, 2);
-		// cv.circle(canvas, mid, 1.75 * shape.minExtent, white, 1);
+		// cv.circle(canvas, mid, 1.75 * shape.minLength, white, 1);
 
 		let isShapeLinked = linkedShapes.includes(shape);
 
@@ -341,7 +344,7 @@ function findSetCards(shapes, canvas) {
 			let midDistSquared = distSquared(shape.minRect.center, other.minRect.center);
 			// cv.circle(canvas, mid, Math.sqrt(midDistSquared), [255, 0, 0, 255], 1)
 
-			if (Math.sqrt(midDistSquared) < (1.75 * Math.max(shape.minExtent, other.minExtent))) {
+			if (Math.sqrt(midDistSquared) < (1.75 * Math.max(shape.minLength, other.minLength))) {
 				linkedShapes.push(other);
 				addShapesToCards(foundCards, shape, other);
 				isShapeLinked = true;
