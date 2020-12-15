@@ -21,7 +21,8 @@
 
 <body>
 	<input class="invisible" type="file" id="realFile" accept="image/*"/>
-	<button id="customButton" type="button" >Take a picture of Set cards</button>
+	<button id="pictureButton" class="customButton" type="button" style="width: 200px; transform: translate(-50%, -130%);">Take a Picture of Set Cards</button>
+	<button id="exampleButton" class="customButton" type="button" onclick="" style="width: 180px; transform: translate(-50%, 30%);">Load Example</button>
 
 	<img class="invisible" id="imageView" src="" alt="set image" >
 	<canvas class="invisible" id="canvasOutput"></canvas>
@@ -30,7 +31,10 @@
 	<script src="js/setshape.js"></script>
 	<script src="js/setcard.js"></script>
 	<script src="js/libs/colorconv.js"></script>
-	<script src="js/capture.js"></script>
+	<script src="js/carddetection.js"></script>
+	<script src="js/setfinder.js"></script>
+	<script src="js/vectors.js"></script>
+	<script src="js/main.js"></script>
 </body>
 
 </html>

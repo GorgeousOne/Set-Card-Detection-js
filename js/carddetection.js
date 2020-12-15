@@ -1,120 +1,23 @@
-let fileInput = document.getElementById("realFile");
-let fancyButton = document.getElementById("customButton");
 
-let imageView = document.getElementById("imageView");
-let canvas = document.getElementById("canvasOutput");
+function detectSetCards(image) {
 
-fancyButton.addEventListener("click", function () {
-	fileInput.click();
-});
-
-fileInput.addEventListener("change", function () {
-
-	console.log("SOMETHIGN");
-	// if (fileInput.value) {
-
-		showImageView();
-		imageView.src = URL.createObjectURL(fileInput.files[0]);
-		// let file = fileInput.files[0];
-		// let reader = new FileReader();
-		// reader.addEventListener("load", function () {
-		// 	imageView.src = reader.result;
-		// });
-		// if (file) {
-		// 	reader.readAsDataURL(file);
-		// }
-	// }
-});
-
-imageView.addEventListener("load", function () {
-
-	let img = cv.imread(imageView);
-	startDetection(img);
-});
-
-function showImageView() {
-	fancyButton.style.display = "none";
-	// imageView.style.display = "block";
-	canvas.style.display = "block";
-	document.body.style.backgroundColor = "#16161d";
-}
-
-function startDetection(img) {
-
-	let scaledImg = getImgResized(img);
-
-	let grayImg = getImgBlurredGray(scaledImg);
+	let grayImg = getImgBlurredGray(image);
 	let contours = findContours(grayImg);
 
-	let imgSize = scaledImg.size();
+	let imgSize = image.size();
 	let imgWidth = imgSize.width;
 	let imgHeight = imgSize.height;
-	let imgMinExtent = Math.min(imgWidth, imgHeight);
+	let imgMinLength = Math.min(imgWidth, imgHeight);
 
-	let possibleShapes = findPossibleShapes(contours, imgMinExtent, scaledImg);
-	let actualShapes = findActualShapes(possibleShapes);
+	let possibleShapes = findPossibleShapes(contours, imgMinLength, image);
+	let actualShapes = filterActualShapes(possibleShapes);
 
-	findShapesColorsShading(actualShapes, scaledImg);
-	let cards = findSetCards(actualShapes, scaledImg);
+	findShapeColorsAndShading(actualShapes, image);
+	let cards = findSetCards(actualShapes, image);
 
-	let colors = [];
-
-	for (let i = 0; i < cards.length; i++) {
-		colors.push(hslToRgb(i / cards.length, Math.random() * 0.3 + 0.7, 0.5));
-	}
-
-	for (let j = 0; j < cards.length; j++) {
-
-		let card = cards[j];
-		let matVec = new cv.MatVector();
-		let rndColor = colors[j];
-
-		for (let i = 0; i < card.shapes.length; i++) {
-			matVec.push_back(card.shapes[i].contour);
-			cv.drawContours(scaledImg, matVec, i, rndColor, 2, cv.LINE_8);
-		}
-		matVec.delete();
-	}
-
-	cv.imshow('canvasOutput', scaledImg);
-
-	contours.delete();
-	scaledImg.delete();
-	img.delete();
 	grayImg.delete();
-}
-
-function getColorByName(colorName) {
-	switch (colorName) {
-		case "red":
-			return [255, 0, 0, 255];
-		case "green":
-			return [0, 128, 0, 255];
-		case "purple":
-			return [128, 0, 255, 255];
-		default:
-			console.log("what color is this?", colorName);
-			return undefined;
-	}
-}
-
-function getImgResized(img) {
-
-	let imgSize = img.size();
-	let imgWidth = imgSize.width;
-	let imgHeight = imgSize.height;
-
-	let maxFactor = Math.floor(Math.max(imgWidth, imgWidth) / 1000);  // or whatever
-	let imgResized = new cv.Mat();
-
-	if (maxFactor > 1) {
-		cv.resize(img, imgResized, new cv.Size(
-			Math.floor(imgWidth / maxFactor),
-			Math.floor(imgHeight / maxFactor)));
-		return imgResized;
-
-	} else
-		return img;
+	contours.delete();
+	return cards
 }
 
 function getImgBlurredGray(img, kernelSize = 5) {
@@ -143,13 +46,13 @@ function findContours(imgGray) {
 	return contours;
 }
 
-function findPossibleShapes(contours, imgMinExtent, canvas) {
+function findPossibleShapes(contours, imgMinLength, canvas) {
 
-	let minContourPoints = imgMinExtent * 0.04;
+	let minContourPoints = imgMinLength * 0.04;
 
-	let minBoundsSize = imgMinExtent * 0.03;
-	let minMinRectSize = imgMinExtent * 0.025;
-	let maxMinRectSize = imgMinExtent * 0.19;
+	let minBoundsSize = imgMinLength * 0.03;
+	let minMinRectSize = imgMinLength * 0.025;
+	let maxMinRectSize = imgMinLength * 0.19;
 	let minExtent = 0.55;
 	let maxExtent = 0.90;
 
@@ -207,7 +110,7 @@ function findPossibleShapes(contours, imgMinExtent, canvas) {
 		if (shapeExtent > maxExtent) {
 			//red - shape extent too big
 			// cv.drawContours(canvas, contours, i, [255, 0, 0, 255], 1, cv.LINE_8);
-			return;
+			continue;
 		}
 
 		// cv.drawContours(canvas, contours, i, [255, 255, 255, 255], 2, cv.LINE_8);
@@ -223,7 +126,7 @@ function ratioFits(rect) {
 	let minRatio = 1.3;
 	let maxRatio = 3.2;
 	let ratio = getGreaterAspectRatio(rect);
-	return minRatio < ratio < maxRatio;
+	return ratio > minRatio && ratio < maxRatio;
 }
 
 function getGreaterAspectRatio(minRect) {
@@ -232,11 +135,11 @@ function getGreaterAspectRatio(minRect) {
 	return width > height ? (width / height) : (height / width);
 }
 
-function findShapeType(boundsOccupation) {
-	return (boundsOccupation < 0.666) ? "diamond" : (boundsOccupation < 0.81) ? "squiggle" : "oval";
+function findShapeType(boundsExtent) {
+	return (boundsExtent < 0.666) ? "diamond" : (boundsExtent < 0.81) ? "squiggle" : "oval";
 }
 
-function findActualShapes(shapes) {
+function filterActualShapes(shapes) {
 
 	let uniqueShapes = [];
 
@@ -269,15 +172,14 @@ function findActualShapes(shapes) {
 			uniqueShapes.push(shape);
 
 			for (let shape of uniqueShapes) {
-				shape.parentContour = growContour(shape.contour, shape.minExtent * 0.2);
+				shape.parentContour = growContour(shape.contour, shape.minLength * 0.2);
 				if ("childContour" in shape) {
-					shape.childContour = growContour(shape.contour, shape.minExtent * -0.1);
+					shape.childContour = growContour(shape.contour, shape.minLength * -0.1);
 				}
 			}
 		}
 	}
 
-	console.log("found " + uniqueShapes.length + " uniques");
 	return uniqueShapes;
 }
 
@@ -335,7 +237,7 @@ function getNormalOrtho(p) {
 let white = [255, 255, 255, 255];
 let black = [0, 0, 0, 255];
 
-function findShapesColorsShading(shapes, coloredImg) {
+function findShapeColorsAndShading(shapes, coloredImg) {
 
 	for (let shape of shapes) {
 
@@ -350,10 +252,6 @@ function findShapesColorsShading(shapes, coloredImg) {
 		let roi = coloredImg.roi(rect);
 		let roiSize = roi.size();
 		let mask = new cv.Mat.zeros(roiSize.height, roiSize.width, cv.CV_8U);
-
-		// cv.drawContours(mask, matVec, 0, white, -1, cv.LINE_8, new cv.Mat(), 0, offset);
-		// cv.imshow('canvasOutput', mask);
-		// return;
 
 		cv.drawContours(mask, matVec, 0, white, -1, cv.LINE_8, new cv.Mat(), 0, offset);
 		let meanInside = cv.mean(roi, mask);
@@ -398,8 +296,8 @@ function findShapeColor(hlsColor) {
 	} else if (hue >= 30 && hue <= 160) {
 		return "green";
 	} else {
-		console.log("no color found for", Math.floor(hue));
-		return "other";
+		//idk i dont want to think about a better alternative how to deal with bad images
+		return "purple"
 	}
 }
 
@@ -427,10 +325,9 @@ function findSetCards(shapes, canvas) {
 	for (let i = 0; i < shapes.length; i++) {
 		let shape = shapes[i];
 
-		// console.log(shape.shapeType.toString() + ":");
 		// let mid = shape.minRect.center;
 		// cv.circle(canvas, mid, 1, white, 2);
-		// cv.circle(canvas, mid, 1.75 * shape.minExtent, white, 1);
+		// cv.circle(canvas, mid, 1.75 * shape.minLength, white, 1);
 
 		let isShapeLinked = linkedShapes.includes(shape);
 
@@ -444,22 +341,17 @@ function findSetCards(shapes, canvas) {
 			let midDistSquared = distSquared(shape.minRect.center, other.minRect.center);
 			// cv.circle(canvas, mid, Math.sqrt(midDistSquared), [255, 0, 0, 255], 1)
 
-			if (Math.sqrt(midDistSquared) < (1.75 * Math.max(shape.minExtent, other.minExtent))) {
+			if (Math.sqrt(midDistSquared) < (1.75 * Math.max(shape.minLength, other.minLength))) {
 				linkedShapes.push(other);
-				addCard(foundCards, shape, other);
+				addShapesToCards(foundCards, shape, other);
 				isShapeLinked = true;
-
-				// console.log("  ->", shape.shapeType.toString());
-				// cv.circle(canvas, mid, Math.sqrt(midDistSquared), [0, 128, 255, 255], 1);
 			}
 		}
 
 		if (!isShapeLinked) {
-			// console.log("  *none*");
 			foundCards.push(new SetCard(shape.shapeType, [shape]));
 		}
 	}
-	// console.log(foundCards.length, " cards found");
 	return foundCards;
 }
 
@@ -467,7 +359,7 @@ function distSquared(p0, p1) {
 	return (p1.x - p0.x) ** 2 + (p1.y - p0.y) ** 2;
 }
 
-function addCard(cards, shape, otherShape) {
+function addShapesToCards(cards, shape, otherShape) {
 
 	for (let card of cards) {
 

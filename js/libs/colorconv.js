@@ -51,7 +51,7 @@ function rgbToHsl(bgrColor) {
  * @param   {number}  l       The lightness
  * @return  {Array}           The RGB representation
  */
-function hslToRgb(h, s, l){
+function hslToBgr(h, s, l){
 	var r, g, b;
 
 	if(s == 0){
