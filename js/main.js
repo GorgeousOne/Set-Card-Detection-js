@@ -78,11 +78,11 @@ imageView.addEventListener("load", function () {
 	cv.imshow("canvasOutput", scaledImg);
 });
 
-document.getElementById("body").addEventListener('click', function () {
+document.body.addEventListener('click', function () {
 	switchView();
 }, true);
 
-window.addEventListener('touchstart', function () {
+document.body.addEventListener('touchstart', function () {
 	switchView();
 }, true);
 
