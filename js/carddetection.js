@@ -239,7 +239,8 @@ let black = [0, 0, 0, 255];
 
 function findShapeColorsAndShading(shapes, coloredImg) {
 
-	for (let shape of shapes) {
+	for (let i = shapes.length-1; i >= 0; i--) {
+		let shape = shapes[i];
 
 		let matVec = new cv.MatVector();
 		matVec.push_back(shape.childContour);
@@ -254,18 +255,24 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 		let mask = new cv.Mat.zeros(roiSize.height, roiSize.width, cv.CV_8U);
 
 		cv.drawContours(mask, matVec, 0, white, -1, cv.LINE_8, new cv.Mat(), 0, offset);
-		let meanInside = cv.mean(roi, mask);
+		shape.meanInside = cv.mean(roi, mask);
 
 		cv.drawContours(mask, matVec, 1, white, -1, cv.LINE_8, new cv.Mat(), 0, offset);
 		cv.drawContours(mask, matVec, 0, black, -1, cv.LINE_8, new cv.Mat(), 0, offset);
-		let meanContour = cv.mean(roi, mask);
+		shape.meanContour = cv.mean(roi, mask);
 
 		cv.drawContours(mask, matVec, 2, white, -1, cv.LINE_8, new cv.Mat(), 0, offset);
 		cv.drawContours(mask, matVec, 1, black, -1, cv.LINE_8, new cv.Mat(), 0, offset);
-		let meanOutside = cv.mean(roi, mask);
+		shape.meanOutside = cv.mean(roi, mask);
 
-		shape.shapeType.color = findShapeColor(rgbToHsl(meanContour));
-		shape.shapeType.shading = findShading(rgbToHsl(meanInside), rgbToHsl(meanOutside));
+		//provisional fix
+		if (rgbToHsl(shape.meanOutside)[2] < 0.5) {
+			shapes.splice(i, 1);
+			continue
+		}
+
+		shape.shapeType.color = findShapeColor(rgbToHsl(shape.meanContour));
+		shape.shapeType.shading = findShading(rgbToHsl(shape.meanInside), rgbToHsl(shape.meanOutside));
 
 		roi.delete();
 		mask.delete();
@@ -290,7 +297,13 @@ function findShapeColor(hlsColor) {
 	let hue = hlsColor[0] * 360;
 
 	if (hue >= 350 || hue <= 20) {
-		return "red";
+		let sat = hlsColor[1] * 100;
+
+		if (sat < 25) {
+			return "purple";
+		}else {
+			return "red";
+		}
 	} else if (hue >= 230 && hue <= 340) {
 		return "purple";
 	} else if (hue >= 30 && hue <= 160) {

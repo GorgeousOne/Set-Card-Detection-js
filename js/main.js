@@ -11,8 +11,8 @@ takePicButton.addEventListener("click", function () {
 
 loadExampleButton.addEventListener("click", function () {
 
-	imageView.src = "res/test" + (10 + Math.floor(Math.random() * 5)) + ".jpg";
-	showImageView()
+	imageView.src = "res/test" + (10 + Math.floor(Math.random() * 6)) + ".jpg";
+	showImageView();
 });
 
 fileInput.addEventListener("change", function () {
@@ -30,24 +30,64 @@ function showImageView() {
 	document.body.style.backgroundColor = "#16161d";
 }
 
+function showSnackBar(text) {
+
+	let snackbar = document.getElementById("snackbar");
+	snackbar.innerText = text;
+	snackbar.className = "show";
+	setTimeout(function () {
+		// snackbar.className = snackbar.className.replace("show", "");
+		snackbar.className = "";
+	}, 3000);
+}
+
+let scaledImg;
+let analyseImg;
+let isAnalysisVisible = false;
+
 imageView.addEventListener("load", function () {
 
 	let img = cv.imread(imageView);
-	let scaledImg = resizeImg(img);
+	scaledImg = resizeImg(img);
+
 	let cards = detectSetCards(scaledImg);
 
 	if (cards.length === 0) {
-		console.log("No card found in this image");
+		showSnackBar("Could not find any cards :(");
+
+	} else {
+
+		let sets = findSets(cards);
+
+		if (sets.length === 0) {
+			showSnackBar("Could not find any sets :(");
+		}
+
+		console.log(sets.length, "found sets");
+		console.log(sets);
+
+		analyseImg = scaledImg.clone();
+		displaySets(sets, scaledImg);
+		displayShapes(cards, analyseImg);
 	}
 
-	let sets = findSets(cards);
-	console.log(sets.length, "found sets");
-	console.log(sets);
-	displaySets(sets, scaledImg);
-
 	cv.imshow("canvasOutput", scaledImg);
-	scaledImg.delete();
 });
+
+document.body.addEventListener('click', function () {
+
+	if (canvas.style.display !== "block") {
+		return;
+	}
+
+	if (isAnalysisVisible) {
+		cv.imshow("canvasOutput", scaledImg);
+		isAnalysisVisible = false;
+	}else {
+		cv.imshow("canvasOutput", analyseImg);
+		isAnalysisVisible = true;
+	}
+}, true);
 
 function resizeImg(img) {
 
@@ -67,6 +107,27 @@ function resizeImg(img) {
 
 	} else
 		return img;
+}
+
+function displayShapes(cards, image) {
+
+	for (let card of cards) {
+
+		for (let shape of card.shapes) {
+
+			let mid = shape.minRect.center;
+			cv.circle(image, mid, shape.minLength * 2 / 3, shape.meanContour, -1);
+			cv.circle(image, mid, shape.minLength / 2, shape.meanInside, -1);
+
+			let label =
+				shape.shapeType.color[0] +
+				shape.shapeType.shape[0].toUpperCase();
+
+			let anchor = addVec(cloneVec(mid), {x: -20, y: 10});
+			cv.putText(image, label, anchor, cv.FONT_HERSHEY_SIMPLEX,
+				1, black, 1, cv.LINE_AA);
+		}
+	}
 }
 
 function displayCards(cards, image) {
@@ -117,16 +178,16 @@ function displaySets(sets, image) {
 
 			if (dist1 < dist2) {
 				drawLineBetween(set[1], set[2], image, rndColor, 3);
-			}else {
+			} else {
 				drawLineBetween(set[2], set[0], image, rndColor, 3);
 			}
 
-		}else {
+		} else {
 			drawLineBetween(set[1], set[2], image, rndColor, 3);
 
 			if (dist0 < dist2) {
 				drawLineBetween(set[0], set[1], image, rndColor, 3);
-			}else {
+			} else {
 				drawLineBetween(set[2], set[0], image, rndColor, 3);
 			}
 		}
@@ -138,7 +199,7 @@ function drawLineBetween(card1, card2, image, color, width) {
 	let mid1 = card1.mid();
 	let mid2 = card2.mid();
 
-	cv.circle(image, mid1, 2*width, color, -1, cv.LINE_AA);
-	cv.circle(image, mid2, 2*width, color, -1, cv.LINE_AA);
+	cv.circle(image, mid1, 2 * width, color, -1, cv.LINE_AA);
+	cv.circle(image, mid2, 2 * width, color, -1, cv.LINE_AA);
 	cv.line(image, mid1, mid2, color, width, cv.LINE_AA);
 }

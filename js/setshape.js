@@ -11,5 +11,9 @@ class SetShape {
 		this.contour = contour;
 		this.childContour = childContour;
 		this.parentContour = parentContour;
+
+		this.meanContour = undefined;
+		this.meanInside = undefined;
+		this.meanOutside = undefined;
 	}
 }
