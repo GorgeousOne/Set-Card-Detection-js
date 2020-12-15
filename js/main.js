@@ -1,3 +1,7 @@
+if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+	document.getElementById("body").style.cursor = "pointer"
+}
+
 let fileInput = document.getElementById("realFile");
 let takePicButton = document.getElementById("pictureButton");
 let loadExampleButton = document.getElementById("exampleButton");
@@ -74,8 +78,15 @@ imageView.addEventListener("load", function () {
 	cv.imshow("canvasOutput", scaledImg);
 });
 
-document.body.addEventListener('click', function () {
+document.getElementById("body").addEventListener('click', function () {
+	switchView();
+}, true);
 
+window.addEventListener('touchstart', function () {
+	switchView();
+}, true);
+
+function switchView() {
 	if (canvas.style.display !== "block") {
 		return;
 	}
@@ -87,7 +98,7 @@ document.body.addEventListener('click', function () {
 		cv.imshow("canvasOutput", analyseImg);
 		isAnalysisVisible = true;
 	}
-}, true);
+}
 
 function resizeImg(img) {
 
