@@ -1,6 +1,3 @@
-// if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
-// 	document.getElementById("body").style.cursor = "pointer"
-// }
 
 let fileInput = document.getElementById("realFile");
 let takePicButton = document.getElementById("pictureButton");
@@ -40,7 +37,6 @@ function showSnackBar(text) {
 	snackbar.innerText = text;
 	snackbar.className = "show";
 	setTimeout(function () {
-		// snackbar.className = snackbar.className.replace("show", "");
 		snackbar.className = "";
 	}, 3000);
 }
@@ -82,14 +78,11 @@ canvas.addEventListener('click', function () {
 	switchView();
 }, true);
 
-// document.body.addEventListener('touchstart', function () {
-// 	switchView();
-// }, true);
-
 function switchView() {
-	// if (canvas.style.display !== "block") {
-	// 	return;
-	// }
+
+	if (analyseImg === undefined) {
+		return;
+	}
 
 	if (isAnalysisVisible) {
 		cv.imshow("canvasOutput", scaledImg);

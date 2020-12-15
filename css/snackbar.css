@@ -1,16 +1,16 @@
 #snackbar {
     visibility: hidden;
-    min-width: 150px;
-    margin-left: -125px;
     background-color: rgba(0, 0, 0, 0.75);
     color: #fff;
     text-align: center;
     border-radius: 9999px;
     padding: 5px 10px;
 
-    position: fixed;
+    position: absolute;
     z-index: 1;
     left: 50%;
+    transform: translateX(-50%);
+
     top: 30px;
     font-family: 'Roboto', sans-serif;
     font-size: 17px;

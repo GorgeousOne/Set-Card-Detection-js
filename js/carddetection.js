@@ -297,19 +297,13 @@ function findShapeColor(hlsColor) {
 	let hue = hlsColor[0] * 360;
 
 	if (hue >= 350 || hue <= 20) {
-		let sat = hlsColor[1] * 100;
-
-		if (sat < 25) {
-			return "purple";
-		}else {
-			return "red";
-		}
+		return "red"
 	} else if (hue >= 230 && hue <= 340) {
 		return "purple";
 	} else if (hue >= 30 && hue <= 160) {
 		return "green";
 	} else {
-		//idk i dont want to think about a better alternative how to deal with bad images
+		//idk i dont want to think about a better way on how to deal with bad images
 		return "purple"
 	}
 }
