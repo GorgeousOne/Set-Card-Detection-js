@@ -49,8 +49,8 @@
 	outline: none;
 
 	position: absolute;
-	bottom: 73px;
-	left: 73px;
+	bottom: 10px;
+	left: 10px;
 
 	transition: all 0.3s ease 0s;
 }
