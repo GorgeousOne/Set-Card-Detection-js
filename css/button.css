@@ -30,5 +30,32 @@
 	background-color: #2EE59D;
 	box-shadow: 0 15px 20px rgba(46, 229, 157, 0.4);
 	color: #fff;
-	/*transform: translate(-50%, -50%) translateY(-7px);*/
+}
+
+#returnButton {
+
+	height: 48px;
+	width: 48px;
+	opacity: 0.5;
+
+	background-image: url('../res/little-arrow.png');
+	background-size: 48px 48px;
+	background-color: #000000;
+
+	border: none;
+	border-radius: 9999px;
+
+	cursor: pointer;
+	outline: none;
+
+	position: absolute;
+	bottom: 73px;
+	left: 73px;
+
+	transition: all 0.3s ease 0s;
+}
+
+#returnButton:hover {
+	opacity: 0.75;
+	box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
 }
