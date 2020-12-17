@@ -5,30 +5,49 @@ let loadExampleButton = document.getElementById("exampleButton");
 
 let imageView = document.getElementById("imageView");
 let canvas = document.getElementById("canvasOutput");
+let returnButton = document.getElementById("returnButton");
 
 takePicButton.addEventListener("click", function () {
 	fileInput.click();
 });
 
 loadExampleButton.addEventListener("click", function () {
-
 	imageView.src = "res/test" + (10 + Math.floor(Math.random() * 6)) + ".jpg";
-	showImageView();
+	toggleScreen();
 });
 
 fileInput.addEventListener("change", function () {
 
 	if (fileInput.value) {
-		showImageView();
+		toggleScreen();
 		imageView.src = URL.createObjectURL(fileInput.files[0]);
 	}
 });
 
-function showImageView() {
-	takePicButton.style.display = "none";
-	loadExampleButton.style.display = "none";
-	canvas.style.display = "block";
-	document.body.style.backgroundColor = "#16161d";
+returnButton.addEventListener("click", function () {
+	toggleScreen();
+});
+
+let isImgAnalysisVisible = false;
+
+function toggleScreen() {
+
+	if (isAnalysisVisible) {
+		takePicButton.style.display = "block";
+		loadExampleButton.style.display = "block";
+		canvas.style.display = "none";
+		returnButton.style.display = "none";
+		document.body.style.backgroundColor = "#fff";
+
+	}else {
+		takePicButton.style.display = "none";
+		loadExampleButton.style.display = "none";
+		canvas.style.display = "block";
+		returnButton.style.display = "block";
+		document.body.style.backgroundColor = "#16161d";
+	}
+
+	isAnalysisVisible = !isAnalysisVisible;
 }
 
 function showSnackBar(text) {
