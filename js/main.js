@@ -28,8 +28,6 @@ returnButton.addEventListener("click", function () {
 	toggleScreen();
 });
 
-let isImgAnalysisVisible = false;
-
 function toggleScreen() {
 
 	if (isAnalysisVisible) {
@@ -42,7 +40,6 @@ function toggleScreen() {
 	}else {
 		takePicButton.style.display = "none";
 		loadExampleButton.style.display = "none";
-		canvas.style.display = "block";
 		returnButton.style.display = "block";
 		document.body.style.backgroundColor = "#16161d";
 	}
@@ -91,6 +88,7 @@ imageView.addEventListener("load", function () {
 	}
 
 	cv.imshow("canvasOutput", scaledImg);
+	canvas.style.display = "block";
 });
 
 canvas.addEventListener('click', function () {
