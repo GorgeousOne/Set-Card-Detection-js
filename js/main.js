@@ -28,23 +28,26 @@ returnButton.addEventListener("click", function () {
 	toggleScreen();
 });
 
+let isStartScreenVisible = true;
+
 function toggleScreen() {
 
-	if (isAnalysisVisible) {
+	if (isStartScreenVisible) {
+		takePicButton.style.display = "none";
+		loadExampleButton.style.display = "none";
+		returnButton.style.display = "block";
+		document.body.style.backgroundColor = "#16161d";
+
+	}else {
 		takePicButton.style.display = "block";
 		loadExampleButton.style.display = "block";
 		canvas.style.display = "none";
 		returnButton.style.display = "none";
 		document.body.style.backgroundColor = "#fff";
-
-	}else {
-		takePicButton.style.display = "none";
-		loadExampleButton.style.display = "none";
-		returnButton.style.display = "block";
-		document.body.style.backgroundColor = "#16161d";
+		isAnalysisVisible = false;
 	}
 
-	isAnalysisVisible = !isAnalysisVisible;
+	isStartScreenVisible = !isStartScreenVisible;
 }
 
 function showSnackBar(text) {
@@ -59,7 +62,6 @@ function showSnackBar(text) {
 
 let scaledImg;
 let analyseImg;
-let isAnalysisVisible = false;
 
 imageView.addEventListener("load", function () {
 
@@ -92,10 +94,12 @@ imageView.addEventListener("load", function () {
 });
 
 canvas.addEventListener('click', function () {
-	switchView();
+	toggleImageView();
 }, true);
 
-function switchView() {
+let isAnalysisVisible = false;
+
+function toggleImageView() {
 
 	if (analyseImg === undefined) {
 		return;
@@ -103,11 +107,11 @@ function switchView() {
 
 	if (isAnalysisVisible) {
 		cv.imshow("canvasOutput", scaledImg);
-		isAnalysisVisible = false;
 	}else {
 		cv.imshow("canvasOutput", analyseImg);
-		isAnalysisVisible = true;
 	}
+
+	isAnalysisVisible = !isAnalysisVisible;
 }
 
 function resizeImg(img) {
