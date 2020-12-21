@@ -67,26 +67,33 @@ imageView.addEventListener("load", function () {
 
 	let img = cv.imread(imageView);
 	scaledImg = resizeImg(img);
+	analyseImg = scaledImg.clone();
 
-	let cards = detectSetCards(scaledImg);
+	let cards;
 
-	if (cards.length === 0) {
-		showSnackBar("Could not find any cards :(");
+	try {
+		cards = detectSetCards(scaledImg);
 
-	} else {
+		if (cards.length === 0) {
+			showSnackBar("Could not find any cards :(");
 
-		let sets = findSets(cards);
+		} else {
 
-		if (sets.length === 0) {
-			showSnackBar("Could not find any sets :(");
+			let sets = findSets(cards);
+
+			if (sets.length === 0) {
+				showSnackBar("Could not find any sets :(");
+			}
+
+			console.log(sets.length, "found sets");
+			console.log(sets);
+
+			displaySets(sets, scaledImg);
+			displayShapes(cards, analyseImg);
 		}
 
-		console.log(sets.length, "found sets");
-		console.log(sets);
-
-		analyseImg = scaledImg.clone();
-		displaySets(sets, scaledImg);
-		displayShapes(cards, analyseImg);
+	}catch(error) {
+		showSnackBar("An error has occurred :/");
 	}
 
 	cv.imshow("canvasOutput", scaledImg);

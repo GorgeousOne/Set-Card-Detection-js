@@ -239,6 +239,10 @@ let black = [0, 0, 0, 255];
 
 function findShapeColorsAndShading(shapes, coloredImg) {
 
+	let imgSize = coloredImg.size();
+	let imgWidth = imgSize.width;
+	let imgHeight = imgSize.height;
+
 	for (let i = shapes.length-1; i >= 0; i--) {
 		let shape = shapes[i];
 
@@ -249,6 +253,12 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 
 		let rect = cv.boundingRect(shape.parentContour);
 		let offset = new cv.Point(-rect.x, -rect.y);
+
+		if (rect.x < 0 || rect.x > imgWidth ||
+			rect.y < 0 || rect.y > imgHeight) {
+			shapes.splice(i, 1);
+			continue;
+		}
 
 		let roi = coloredImg.roi(rect);
 		let roiSize = roi.size();
@@ -268,7 +278,7 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 		//provisional fix
 		if (rgbToHsl(shape.meanOutside)[2] < 0.5) {
 			shapes.splice(i, 1);
-			continue
+			continue;
 		}
 
 		shape.shapeType.color = findShapeColor(rgbToHsl(shape.meanContour));
@@ -296,11 +306,11 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 function findShapeColor(hlsColor) {
 	let hue = hlsColor[0] * 360;
 
-	if (hue >= 350 || hue <= 20) {
+	if (hue >= 345 || hue <= 20) {
 		return "red"
 	} else if (hue >= 230 && hue <= 340) {
 		return "purple";
-	} else if (hue >= 30 && hue <= 160) {
+	} else if (hue >= 30 && hue <= 180) {
 		return "green";
 	} else {
 		//idk i dont want to think about a better way on how to deal with bad images
@@ -330,13 +340,13 @@ function findSetCards(shapes, canvas) {
 	let foundCards = [];
 
 	for (let i = 0; i < shapes.length; i++) {
+
 		let shape = shapes[i];
+		let isShapeLinked = linkedShapes.includes(shape);
 
 		// let mid = shape.minRect.center;
 		// cv.circle(canvas, mid, 1, white, 2);
 		// cv.circle(canvas, mid, 1.75 * shape.minLength, white, 1);
-
-		let isShapeLinked = linkedShapes.includes(shape);
 
 		for (let k = i + 1; k < shapes.length; k++) {
 			let other = shapes[k];
