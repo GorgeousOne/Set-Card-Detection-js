@@ -28,26 +28,26 @@ returnButton.addEventListener("click", function () {
 	toggleScreen();
 });
 
-let isImgAnalysisVisible = false;
+let isStartScreenVisible = true;
 
 function toggleScreen() {
 
-	if (isAnalysisVisible) {
+	if (isStartScreenVisible) {
+		takePicButton.style.display = "none";
+		loadExampleButton.style.display = "none";
+		returnButton.style.display = "block";
+		document.body.style.backgroundColor = "#16161d";
+
+	}else {
 		takePicButton.style.display = "block";
 		loadExampleButton.style.display = "block";
 		canvas.style.display = "none";
 		returnButton.style.display = "none";
 		document.body.style.backgroundColor = "#fff";
-
-	}else {
-		takePicButton.style.display = "none";
-		loadExampleButton.style.display = "none";
-		canvas.style.display = "block";
-		returnButton.style.display = "block";
-		document.body.style.backgroundColor = "#16161d";
+		isAnalysisVisible = false;
 	}
 
-	isAnalysisVisible = !isAnalysisVisible;
+	isStartScreenVisible = !isStartScreenVisible;
 }
 
 function showSnackBar(text) {
@@ -62,42 +62,51 @@ function showSnackBar(text) {
 
 let scaledImg;
 let analyseImg;
-let isAnalysisVisible = false;
 
 imageView.addEventListener("load", function () {
 
 	let img = cv.imread(imageView);
 	scaledImg = resizeImg(img);
+	analyseImg = scaledImg.clone();
 
-	let cards = detectSetCards(scaledImg);
+	let cards;
 
-	if (cards.length === 0) {
-		showSnackBar("Could not find any cards :(");
+	try {
+		cards = detectSetCards(scaledImg);
 
-	} else {
+		if (cards.length === 0) {
+			showSnackBar("Could not find any cards :(");
 
-		let sets = findSets(cards);
+		} else {
 
-		if (sets.length === 0) {
-			showSnackBar("Could not find any sets :(");
+			let sets = findSets(cards);
+
+			if (sets.length === 0) {
+				showSnackBar("Could not find any sets :(");
+			}
+
+			console.log(sets.length, "found sets");
+			console.log(sets);
+
+			displaySets(sets, scaledImg);
+			displayShapes(cards, analyseImg);
 		}
 
-		console.log(sets.length, "found sets");
-		console.log(sets);
-
-		analyseImg = scaledImg.clone();
-		displaySets(sets, scaledImg);
-		displayShapes(cards, analyseImg);
+	}catch(error) {
+		showSnackBar("An error has occurred :/");
 	}
 
 	cv.imshow("canvasOutput", scaledImg);
+	canvas.style.display = "block";
 });
 
 canvas.addEventListener('click', function () {
-	switchView();
+	toggleImageView();
 }, true);
 
-function switchView() {
+let isAnalysisVisible = false;
+
+function toggleImageView() {
 
 	if (analyseImg === undefined) {
 		return;
@@ -105,11 +114,11 @@ function switchView() {
 
 	if (isAnalysisVisible) {
 		cv.imshow("canvasOutput", scaledImg);
-		isAnalysisVisible = false;
 	}else {
 		cv.imshow("canvasOutput", analyseImg);
-		isAnalysisVisible = true;
 	}
+
+	isAnalysisVisible = !isAnalysisVisible;
 }
 
 function resizeImg(img) {

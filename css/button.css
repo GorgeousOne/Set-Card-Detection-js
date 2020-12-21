@@ -38,7 +38,7 @@
 	width: 48px;
 	opacity: 0.5;
 
-	background-image: url('../res/little-arrow.png');
+	background-image: url('icon/little-arrow.png');
 	background-size: 48px 48px;
 	background-color: #000000;
 
@@ -49,8 +49,8 @@
 	outline: none;
 
 	position: absolute;
-	bottom: 73px;
-	left: 73px;
+	bottom: 15px;
+	left: 15px;
 
 	transition: all 0.3s ease 0s;
 }
