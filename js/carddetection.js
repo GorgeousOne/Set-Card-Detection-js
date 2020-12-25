@@ -51,7 +51,7 @@ function findPossibleShapes(contours, imgMinLength, canvas) {
 	let minContourPoints = imgMinLength * 0.04;
 	let minBoundsSize = imgMinLength * 0.03;
 	let minMinRectSize = imgMinLength * 0.025;
-	let maxMinRectSize = imgMinLength * 0.10;
+	let maxMinRectSize = imgMinLength * 0.19;
 	let minExtent = 0.55;
 	let maxExtent = 0.90;
 
