@@ -269,8 +269,11 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 		cv.drawContours(mask, matVec, 1, black, -1, cv.LINE_8, new cv.Mat(), 0, offset);
 		shape.meanOutside = cv.mean(roi, mask);
 
-		//delete shapes whose surrounding is very dark,
-		if (rgbToHsl(shape.meanOutside)[2] < 0.4) {
+		let hslOutside = rgbToHsl(shape.meanOutside);
+		let hslInside = rgbToHsl(shape.meanInside);
+
+		//delete shapes whose surrounding is relatively
+		if (hslInside[2] - hslOutside[2] > 0.1) {
 			shapes.splice(i, 1);
 			continue;
 		}
