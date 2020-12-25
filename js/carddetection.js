@@ -10,9 +10,9 @@ function detectSetCards(image) {
 	let imgMinLength = Math.min(imgWidth, imgHeight);
 
 	let possibleShapes = findPossibleShapes(contours, imgMinLength, image);
-	let actualShapes = filterActualShapes(possibleShapes);
+	findShapeColorsAndShading(possibleShapes, image);
 
-	findShapeColorsAndShading(actualShapes, image);
+	let actualShapes = filterActualShapes(possibleShapes);
 	let cards = findSetCards(actualShapes, image);
 
 	grayImg.delete();
@@ -49,10 +49,9 @@ function findContours(imgGray) {
 function findPossibleShapes(contours, imgMinLength, canvas) {
 
 	let minContourPoints = imgMinLength * 0.04;
-
 	let minBoundsSize = imgMinLength * 0.03;
 	let minMinRectSize = imgMinLength * 0.025;
-	let maxMinRectSize = imgMinLength * 0.19;
+	let maxMinRectSize = imgMinLength * 0.10;
 	let minExtent = 0.55;
 	let maxExtent = 0.90;
 
@@ -116,6 +115,9 @@ function findPossibleShapes(contours, imgMinLength, canvas) {
 		// cv.drawContours(canvas, contours, i, [255, 255, 255, 255], 2, cv.LINE_8);
 		let shape = new SetShape(contour, minRect);
 		shape.shapeType.shape = findShapeType(shapeExtent);
+		shape.parentContour = growContour(shape.contour, shape.minLength * 0.2);
+		shape.childContour = growContour(shape.contour, shape.minLength * -0.1);
+
 		possibleShapes.push(shape);
 	}
 
@@ -145,10 +147,6 @@ function filterActualShapes(shapes) {
 
 	for (let shape of shapes) {
 
-		if (shape.childContour !== undefined) {
-			continue;
-		}
-
 		let isUnique = true;
 
 		for (let other of shapes) {
@@ -161,8 +159,6 @@ function filterActualShapes(shapes) {
 			let pointY = shape.contour.data32S[1];
 
 			if (cv.pointPolygonTest(other.contour, new cv.Point(pointX, pointY), false) > 0) {
-
-				other.childContour = shape.contour;
 				isUnique = false;
 				break;
 			}
@@ -170,15 +166,13 @@ function filterActualShapes(shapes) {
 
 		if (isUnique) {
 			uniqueShapes.push(shape);
-
-			for (let shape of uniqueShapes) {
-				shape.parentContour = growContour(shape.contour, shape.minLength * 0.2);
-				if ("childContour" in shape) {
-					shape.childContour = growContour(shape.contour, shape.minLength * -0.1);
-				}
-			}
 		}
 	}
+
+	// for (let shape of uniqueShapes) {
+	// 	shape.parentContour = growContour(shape.contour, shape.minLength * 0.2);
+	// 	shape.childContour = growContour(shape.contour, shape.minLength * -0.1);
+	// }
 
 	return uniqueShapes;
 }
@@ -275,8 +269,8 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 		cv.drawContours(mask, matVec, 1, black, -1, cv.LINE_8, new cv.Mat(), 0, offset);
 		shape.meanOutside = cv.mean(roi, mask);
 
-		//provisional fix
-		if (rgbToHsl(shape.meanOutside)[2] < 0.5) {
+		//delete shapes whose surrounding is very dark,
+		if (rgbToHsl(shape.meanOutside)[2] < 0.4) {
 			shapes.splice(i, 1);
 			continue;
 		}
@@ -287,10 +281,10 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 		roi.delete();
 		mask.delete();
 
-		// cv.drawContours(coloredImg, matVec, 2, meanOutside, 2, cv.LINE_8);
+		// cv.drawContours(coloredImg, matVec, 1, hslToBgr(Math.random(), Math.random() * 0.3 + 0.7, 0.5), -1, cv.LINE_8);
 		// cv.drawContours(coloredImg, matVec, 2, getColorByName(shape.shapeType.color), 2, cv.LINE_8);
-		// cv.drawContours(coloredImg, matVec, 1, meanContour, 2, cv.LINE_8);
-		// cv.drawContours(coloredImg, matVec, 0, meanInside, 2, cv.LINE_8);
+		// cv.drawContours(coloredImg, matVec, 1, shape.meanContour, 2, cv.LINE_8);
+		// cv.drawContours(coloredImg, matVec, 0, shape.meanInside, 2, cv.LINE_8);
 		// cv.drawContours(coloredImg, matVec, 2, getColorByName(shape.shapeType.color), 2, cv.LINE_8);
 
 		// if (shape.shapeType.shading === "open") {
@@ -323,7 +317,6 @@ function findShading(hslColorInside, hslColorOutside) {
 	let lightInside = hslColorInside[2] * 100;
 	let lightOutside = hslColorOutside[2] * 100;
 	let fallOff = Math.abs(lightOutside - lightInside);
-	// console.log(Math.floor(lightInside), Math.floor(lightOutside), Math.floor(fallOff));
 
 	if (fallOff < 4) {
 		return "open";
