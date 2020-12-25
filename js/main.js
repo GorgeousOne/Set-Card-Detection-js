@@ -89,6 +89,7 @@ imageView.addEventListener("load", function () {
 			console.log(sets);
 
 			displaySets(sets, scaledImg);
+			displayCards(cards, analyseImg);
 			displayShapes(cards, analyseImg);
 		}
 
