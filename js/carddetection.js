@@ -248,8 +248,8 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 		let rect = cv.boundingRect(shape.parentContour);
 		let offset = new cv.Point(-rect.x, -rect.y);
 
-		if (rect.x < 0 || rect.x > imgWidth ||
-			rect.y < 0 || rect.y > imgHeight) {
+		if (rect.x < 0 || rect.x + rect.width >= imgWidth ||
+			rect.y < 0 || rect.y + rect.width >= imgHeight) {
 			shapes.splice(i, 1);
 			continue;
 		}

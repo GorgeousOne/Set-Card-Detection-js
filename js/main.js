@@ -11,8 +11,14 @@ takePicButton.addEventListener("click", function () {
 	fileInput.click();
 });
 
+let exampleIndex = 0
+let exampleCount = 6
+
 loadExampleButton.addEventListener("click", function () {
-	imageView.src = "res/test" + (10 + Math.floor(Math.random() * 6)) + ".jpg";
+
+	imageView.src = "res/test" + (10 + exampleIndex) + ".jpg";
+	exampleIndex++;
+	exampleIndex %= exampleCount;
 	toggleScreen();
 });
 
