@@ -1,4 +1,3 @@
-
 let fileInput = document.getElementById("realFile");
 let takePicButton = document.getElementById("pictureButton");
 let loadExampleButton = document.getElementById("exampleButton");
@@ -11,8 +10,8 @@ takePicButton.addEventListener("click", function () {
 	fileInput.click();
 });
 
-let exampleIndex = 0
-let exampleCount = 6
+let exampleIndex = 0;
+let exampleCount = 6;
 
 loadExampleButton.addEventListener("click", function () {
 
@@ -44,7 +43,7 @@ function toggleScreen() {
 		returnButton.style.display = "block";
 		document.body.style.backgroundColor = "#16161d";
 
-	}else {
+	} else {
 		takePicButton.style.display = "block";
 		loadExampleButton.style.display = "block";
 		canvas.style.display = "none";
@@ -77,7 +76,7 @@ imageView.addEventListener("load", function () {
 
 	let cards;
 
-	try {
+	// try {
 		cards = detectSetCards(scaledImg);
 
 		if (cards.length === 0) {
@@ -99,9 +98,9 @@ imageView.addEventListener("load", function () {
 			displayShapes(cards, analyseImg);
 		}
 
-	}catch(error) {
-		showSnackBar("An error has occurred :/");
-	}
+	// } catch (error) {
+	// 	showSnackBar("An error has occurred :/");
+	// }
 
 	cv.imshow("canvasOutput", scaledImg);
 	canvas.style.display = "block";
@@ -121,7 +120,7 @@ function toggleImageView() {
 
 	if (isAnalysisVisible) {
 		cv.imshow("canvasOutput", scaledImg);
-	}else {
+	} else {
 		cv.imshow("canvasOutput", analyseImg);
 	}
 
@@ -155,6 +154,7 @@ function displayShapes(cards, image) {
 		for (let shape of card.shapes) {
 
 			let mid = shape.minRect.center;
+			// cv.circle(image, mid, shape.minLength, shape.meanOutside, -1);
 			cv.circle(image, mid, shape.minLength * 2 / 3, shape.meanContour, -1);
 			cv.circle(image, mid, shape.minLength / 2, shape.meanInside, -1);
 

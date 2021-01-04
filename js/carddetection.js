@@ -272,17 +272,13 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 		let hslOutside = rgbToHsl(shape.meanOutside);
 		let hslInside = rgbToHsl(shape.meanInside);
 
-		//delete shapes whose surrounding is relatively
-		if (hslInside[2] - hslOutside[2] > 0.1) {
-			shapes.splice(i, 1);
-			continue;
-		}
-
-		shape.shapeType.color = findShapeColor(rgbToHsl(shape.meanContour));
-		shape.shapeType.shading = findShading(rgbToHsl(shape.meanInside), rgbToHsl(shape.meanOutside));
-
 		roi.delete();
 		mask.delete();
+
+		//delete shapes whose surrounding is darker than the shading
+		if (hslInside[2] - hslOutside[2] > 0.1) {
+			shapes.splice(i, 1);
+		}
 
 		// cv.drawContours(coloredImg, matVec, 1, hslToBgr(Math.random(), Math.random() * 0.3 + 0.7, 0.5), -1, cv.LINE_8);
 		// cv.drawContours(coloredImg, matVec, 2, getColorByName(shape.shapeType.color), 2, cv.LINE_8);
@@ -295,35 +291,71 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 		// } else if (shape.shapeType.shading === "solid") {
 		// 	cv.drawContours(coloredImg, matVec, 0, black, 2, cv.LINE_8);
 		// }
-
 		matVec.delete();
+	}
+
+	fixWhiteBalance(shapes);
+
+	for (let shape of shapes) {
+		shape.shapeType.color = findShapeColor(rgbToHsl(shape.meanContour));
+		shape.shapeType.shading = findShading(rgbToHsl(shape.meanInside), rgbToHsl(shape.meanOutside));
+	}
+}
+
+//tries to remove any bad white balance from the contour color by looking at the average white of all cards
+function fixWhiteBalance(shapes) {
+	let avgR = 0;
+	let avgG = 0;
+	let avgB = 0;
+
+	for (let shape of shapes) {
+		let unbalancedWhite = shape.meanOutside;
+		avgR += unbalancedWhite[0];
+		avgG += unbalancedWhite[1];
+		avgB += unbalancedWhite[2];
+	}
+
+	let shapeCount = shapes.length;
+	avgR /= shapeCount;
+	avgG /= shapeCount;
+	avgB /= shapeCount;
+
+	let avgGray =  0.2989 * avgR + 0.5870 * avgG + 0.1140 * avgB;
+	let diffR = avgR - avgGray;
+	let diffG = avgG - avgGray;
+	let diffB = avgB - avgGray;
+
+	for (let shape of shapes) {
+		let correctedContour = [...shape.meanContour];
+		correctedContour[0] -= diffR;
+		correctedContour[1] -= diffG;
+		correctedContour[2] -= diffB;
+		shape.meanContour = correctedContour;
 	}
 }
 
 function findShapeColor(hlsColor) {
 	let hue = hlsColor[0] * 360;
 
-	if (hue >= 345 || hue <= 20) {
+	if (hue >= 340 || hue <= 15) {
 		return "red"
-	} else if (hue >= 230 && hue <= 340) {
+	} else if (hue >= 240 && hue <= 300) {
 		return "purple";
-	} else if (hue >= 30 && hue <= 180) {
+	} else if (hue >= 60 && hue <= 180) {
 		return "green";
 	} else {
-		//idk i dont want to think about a better way on how to deal with bad images
+		//white balance fix should make this irrelevant
 		return "purple"
 	}
 }
 
 function findShading(hslColorInside, hslColorOutside) {
 
-	let lightInside = hslColorInside[2] * 100;
-	let lightOutside = hslColorOutside[2] * 100;
-	let fallOff = Math.abs(lightOutside - lightInside);
+	let fallOff = hslColorOutside[2] - hslColorInside[2];
 
-	if (fallOff < 4) {
+	if (fallOff < 0.04) {
 		return "open";
-	} else if (fallOff < 21) {
+	} else if (fallOff < 0.21) {
 		return "striped";
 	} else {
 		return "solid";
