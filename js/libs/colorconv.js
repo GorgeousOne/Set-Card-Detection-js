@@ -4,24 +4,24 @@
  * Assumes r, g, and b are contained in the set [0, 255] and
  * returns h, s, and l in the set [0, 1].
  *
- * @param   {number}  bgrColor       The blue green and red value in an array
+ * @param   {number}  rgbColor       The blue green and red value in an array
  * @return  {Array}                  The HSL representation
  */
-function rgbToHsl(bgrColor) {
+function rgbToHsl(rgbColor) {
 
-	let red = bgrColor[0] / 255;
-	let green = bgrColor[1] / 255;
-	let blue = bgrColor[2] / 255;
+	let red = rgbColor[0] / 255;
+	let green = rgbColor[1] / 255;
+	let blue = rgbColor[2] / 255;
 
-	var max = Math.max(red, green, blue);
-	var min = Math.min(red, green, blue);
-	var hue, sat, light = (max + min) / 2;
+	let max = Math.max(red, green, blue);
+	let min = Math.min(red, green, blue);
+	let hue, sat, light = (max + min) / 2;
 
 	if (max === min) {
 		hue = sat = 0; // achromatic
 
 	} else {
-		var range = max - min;
+		let range = max - min;
 		sat = light > 0.5 ? range / (2 - max - min) : range / (max + min);
 		switch (max) {
 			case red:
@@ -52,12 +52,12 @@ function rgbToHsl(bgrColor) {
  * @return  {Array}           The RGB representation
  */
 function hslToBgr(h, s, l){
-	var r, g, b;
+	let r, g, b;
 
 	if(s === 0){
 		r = g = b = l; // achromatic
 	}else{
-		var hue2rgb = function hue2rgb(p, q, t){
+		let hue2rgb = function hue2rgb(p, q, t){
 			if(t < 0) t += 1;
 			if(t > 1) t -= 1;
 			if(t < 1/6) return p + (q - p) * 6 * t;
@@ -66,8 +66,8 @@ function hslToBgr(h, s, l){
 			return p;
 		};
 
-		var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-		var p = 2 * l - q;
+		let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+		let p = 2 * l - q;
 		r = hue2rgb(p, q, h + 1/3);
 		g = hue2rgb(p, q, h);
 		b = hue2rgb(p, q, h - 1/3);
