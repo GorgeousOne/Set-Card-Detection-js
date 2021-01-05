@@ -112,7 +112,7 @@ function findPossibleShapes(contours, imgMinLength, canvas) {
 			continue;
 		}
 
-		// cv.drawContours(canvas, contours, i, [255, 255, 255, 255], 2, cv.LINE_8);
+		// cv.drawContours(canvas, contours, i, white, 2, cv.LINE_8);
 		let shape = new SetShape(contour, minRect);
 		shape.shapeType.shape = findShapeType(shapeExtent);
 		shape.parentContour = growContour(shape.contour, shape.minLength * 0.2);
@@ -242,8 +242,9 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 		let offset = new cv.Point(-rect.x, -rect.y);
 
 		if (rect.x < 0 || rect.x + rect.width >= imgWidth ||
-			rect.y < 0 || rect.y + rect.width >= imgHeight) {
+			rect.y < 0 || rect.y + rect.height >= imgHeight) {
 			shapes.splice(i, 1);
+			matVec.delete();
 			continue;
 		}
 
@@ -278,12 +279,6 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 		// cv.drawContours(coloredImg, matVec, 1, shape.meanContour, 2, cv.LINE_8);
 		// cv.drawContours(coloredImg, matVec, 0, shape.meanInside, 2, cv.LINE_8);
 		// cv.drawContours(coloredImg, matVec, 2, getColorByName(shape.shapeType.color), 2, cv.LINE_8);
-
-		// if (shape.shapeType.shading === "open") {
-		// 	cv.drawContours(coloredImg, matVec, 0, white, 2, cv.LINE_8);
-		// } else if (shape.shapeType.shading === "solid") {
-		// 	cv.drawContours(coloredImg, matVec, 0, black, 2, cv.LINE_8);
-		// }
 		matVec.delete();
 	}
 
