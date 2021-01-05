@@ -268,18 +268,12 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 
 		roi.delete();
 		mask.delete();
+		matVec.delete();
 
 		//delete shapes whose surrounding is darker than the shading
 		if (hslInside[2] - hslOutside[2] > 0.1) {
 			shapes.splice(i, 1);
 		}
-
-		// cv.drawContours(coloredImg, matVec, 1, hslToBgr(Math.random(), Math.random() * 0.3 + 0.7, 0.5), -1, cv.LINE_8);
-		// cv.drawContours(coloredImg, matVec, 2, getColorByName(shape.shapeType.color), 2, cv.LINE_8);
-		// cv.drawContours(coloredImg, matVec, 1, shape.meanContour, 2, cv.LINE_8);
-		// cv.drawContours(coloredImg, matVec, 0, shape.meanInside, 2, cv.LINE_8);
-		// cv.drawContours(coloredImg, matVec, 2, getColorByName(shape.shapeType.color), 2, cv.LINE_8);
-		matVec.delete();
 	}
 
 	fixWhiteBalance(shapes);
