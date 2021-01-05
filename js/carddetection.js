@@ -141,16 +141,15 @@ function findShapeType(boundsExtent) {
 	return (boundsExtent < 0.666) ? "diamond" : (boundsExtent < 0.81) ? "squiggle" : "oval";
 }
 
+//deletes all shapes that are with one point inside another shape
 function filterActualShapes(shapes) {
 
 	let uniqueShapes = [];
 
 	for (let shape of shapes) {
-
 		let isUnique = true;
 
 		for (let other of shapes) {
-
 			if (shape === other) {
 				continue;
 			}
@@ -168,39 +167,33 @@ function filterActualShapes(shapes) {
 			uniqueShapes.push(shape);
 		}
 	}
-
-	// for (let shape of uniqueShapes) {
-	// 	shape.parentContour = growContour(shape.contour, shape.minLength * 0.2);
-	// 	shape.childContour = growContour(shape.contour, shape.minLength * -0.1);
-	// }
-
 	return uniqueShapes;
 }
 
-//Returns a copy of the contour with every point expanded outwards by the given pixels (inwards for negative value).
+//Returns a copy of the contour with every point expanded outwards by the given pixels (negative pixels for inwards).
 function growContour(contour, pixels) {
 
-	let newContour = contour.clone();
+	let dataLength = contour.data32S.length;
+	let newContour = new cv.Mat(dataLength/2, 2, cv.CV_32S);
 
 	let prevPoint = getContourPoint(contour, 0);
 	let point = getContourPoint(contour, 2);
 	let nextPoint = getContourPoint(contour, 4);
 
-	let contourLength = contour.data32S.length;
-	for (let i = 6; i < contourLength + 6; i += 2) {
+	for (let i = 6; i < dataLength + 6; i += 2) {
 
 		//predecessor and successor of a point are used to determine the direction to expand towards
 		let dist = getDistVec(prevPoint, nextPoint);
 
 		if (dist[0] !== 0 || dist[1] !== 0) {
 			let facing = getNormalOrtho(dist);
-			newContour.data32S[i % contourLength] = Math.floor(point[0] + facing[0] * pixels);
-			newContour.data32S[(i + 1) % contourLength] = Math.floor(point[1] + facing[1] * pixels);
+			newContour.data32S[i % dataLength] = Math.floor(point[0] + pixels * facing[0]);
+			newContour.data32S[(i + 1) % dataLength] = Math.floor(point[1] + pixels * facing[1]);
 		}
 
 		prevPoint = point;
 		point = nextPoint;
-		nextPoint = getContourPoint(contour, i % contourLength);
+		nextPoint = getContourPoint(contour, i % dataLength);
 	}
 
 	return newContour;
@@ -302,7 +295,7 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 	}
 }
 
-//tries to remove any bad white balance from the contour color by looking at the average white of all cards
+//removes any bad white balance from the contour colors by looking at the average white background of the cards
 function fixWhiteBalance(shapes) {
 	let avgR = 0;
 	let avgG = 0;
@@ -320,10 +313,17 @@ function fixWhiteBalance(shapes) {
 	avgG /= shapeCount;
 	avgB /= shapeCount;
 
-	let avgGray =  0.2989 * avgR + 0.5870 * avgG + 0.1140 * avgB;
+	//the gamma corrected version doesn't seem to make any difference for the hue of colors
+	// let avgGray =  0.2989 * avgR + 0.5870 * avgG + 0.1140 * avgB;
+	let avgGray =  (avgR + avgG + avgB) / 3;
+
 	let diffR = avgR - avgGray;
 	let diffG = avgG - avgGray;
 	let diffB = avgB - avgGray;
+
+	// console.log(Math.round(avgR), "r", Math.round(diffR));
+	// console.log(Math.round(avgG), "g", Math.round(diffG));
+	// console.log(Math.round(avgB), "b", Math.round(diffB));
 
 	for (let shape of shapes) {
 		let correctedContour = [...shape.meanContour];

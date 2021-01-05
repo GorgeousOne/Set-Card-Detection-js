@@ -76,7 +76,7 @@ imageView.addEventListener("load", function () {
 
 	let cards;
 
-	// try {
+	try {
 		cards = detectSetCards(scaledImg);
 
 		if (cards.length === 0) {
@@ -98,9 +98,9 @@ imageView.addEventListener("load", function () {
 			displayShapes(cards, analyseImg);
 		}
 
-	// } catch (error) {
-	// 	showSnackBar("An error has occurred :/");
-	// }
+	} catch (error) {
+		showSnackBar("An error has occurred :/");
+	}
 
 	cv.imshow("canvasOutput", scaledImg);
 	canvas.style.display = "block";

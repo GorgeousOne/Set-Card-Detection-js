@@ -15,7 +15,7 @@ function findSets(cards) {
 				let setRule3 = getSetRule(card3, card2);
 
 				if (doRulesMatch(setRule, setRule2) && doRulesMatch(setRule, setRule3)) {
-					console.log("SET!!!!", i, k, m);
+					// console.log("SET!!!!", i, k, m);
 					sets.push([card1, card2, card3]);
 					break;
 				}
