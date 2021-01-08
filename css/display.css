@@ -2,6 +2,11 @@
     margin: 0;
     padding: 0;
 }
+
+body {
+    overflow-x: hidden;
+}
+
 #canvas-out {
     cursor: pointer;
     position: absolute;
