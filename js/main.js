@@ -1,10 +1,10 @@
-let fileInput = document.getElementById("realFile");
-let takePicButton = document.getElementById("pictureButton");
-let loadExampleButton = document.getElementById("exampleButton");
+let fileInput = document.getElementById("file-input");
+let takePicButton = document.getElementById("take-pic-btn");
+let loadExampleButton = document.getElementById("load-example-btn");
 
-let imageView = document.getElementById("imageView");
-let canvas = document.getElementById("canvasOutput");
-let returnButton = document.getElementById("returnButton");
+let imageSource = document.getElementById("image-src");
+let canvas = document.getElementById("canvas-out");
+let returnButton = document.getElementById("return-btn");
 
 takePicButton.addEventListener("click", function () {
 	fileInput.click();
@@ -15,7 +15,7 @@ let exampleCount = 6;
 
 loadExampleButton.addEventListener("click", function () {
 
-	imageView.src = "res/test" + (10 + exampleIndex) + ".jpg";
+	imageSource.src = "res/test" + (10 + exampleIndex) + ".jpg";
 	exampleIndex++;
 	exampleIndex %= exampleCount;
 	toggleScreen();
@@ -25,7 +25,7 @@ fileInput.addEventListener("change", function () {
 
 	if (fileInput.value) {
 		toggleScreen();
-		imageView.src = URL.createObjectURL(fileInput.files[0]);
+		imageSource.src = URL.createObjectURL(fileInput.files[0]);
 	}
 });
 
@@ -38,16 +38,15 @@ let isStartScreenVisible = true;
 function toggleScreen() {
 
 	if (isStartScreenVisible) {
-		takePicButton.style.display = "none";
-		loadExampleButton.style.display = "none";
-		returnButton.style.display = "block";
+		document.getElementById("main-menu").style.display = "none";
+		document.getElementById("view-screen").style.display = "block";
 		document.body.style.backgroundColor = "#16161d";
 
 	} else {
-		takePicButton.style.display = "block";
-		loadExampleButton.style.display = "block";
+		document.getElementById("main-menu").style.display = "block";
+		document.getElementById("view-screen").style.display = "none";
 		canvas.style.display = "none";
-		returnButton.style.display = "none";
+
 		document.body.style.backgroundColor = "#fff";
 		isAnalysisVisible = false;
 	}
@@ -68,9 +67,9 @@ function showSnackBar(text) {
 let scaledImg;
 let analyseImg;
 
-imageView.addEventListener("load", function () {
+imageSource.addEventListener("load", function () {
 
-	let img = cv.imread(imageView);
+	let img = cv.imread(imageSource);
 	scaledImg = resizeImg(img);
 	analyseImg = scaledImg.clone();
 
@@ -102,7 +101,7 @@ imageView.addEventListener("load", function () {
 		showSnackBar("An error has occurred :/");
 	}
 
-	cv.imshow("canvasOutput", scaledImg);
+	cv.imshow("canvas-out", scaledImg);
 	canvas.style.display = "block";
 });
 
@@ -119,9 +118,9 @@ function toggleImageView() {
 	}
 
 	if (isAnalysisVisible) {
-		cv.imshow("canvasOutput", scaledImg);
+		cv.imshow("canvas-out", scaledImg);
 	} else {
-		cv.imshow("canvasOutput", analyseImg);
+		cv.imshow("canvas-out", analyseImg);
 	}
 
 	isAnalysisVisible = !isAnalysisVisible;

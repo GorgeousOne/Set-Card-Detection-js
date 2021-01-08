@@ -2,8 +2,7 @@
     margin: 0;
     padding: 0;
 }
-
-#canvasOutput {
+#canvas-out {
     cursor: pointer;
     position: absolute;
     width: 100%;
@@ -12,7 +11,7 @@
     margin: auto;
 }
 
-#imageView {
+#image-src {
     position: absolute;
     width: 100%;
     height: 100%;

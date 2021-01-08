@@ -1,0 +1,16 @@
+.btn-group {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(0, -50%);
+}
+
+.btn-group button {
+    display: block;
+    transform: translate(-50%, 0);
+    cursor: pointer;
+}
+
+.btn-group button:not(:last-child) {
+    margin-bottom: 25%;
+}

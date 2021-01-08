@@ -7,7 +7,9 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="theme-color" content="#fafafa">
-	<link rel="stylesheet" href="css/button.css">
+	<link rel="stylesheet" href="css/buttons.css">
+	<link rel="stylesheet" href="css/btn-group.css">
+
 	<link rel="stylesheet" href="css/display.css">
 	<link rel="stylesheet" href="css/snackbar.css">
 
@@ -21,15 +23,22 @@
 </head>
 
 <body>
-	<input class="invisible" type="file" id="realFile" accept="image/*"/>
-	<button id="pictureButton" class="customButton" type="button" style="width: 200px; transform: translate(-50%, -130%);">Take a Picture of Set Cards</button>
-	<button id="exampleButton" class="customButton" type="button" style="width: 180px; transform: translate(-50%, 30%);">Load Example</button>
 
-	<div id="snackbar">Couldn't find any sets :(</div>
+	<div id="main-menu">
+		<div class="btn-group">
+			<input class="invisible" type="file" id="file-input" accept="image/*"/>
+			<button id="take-pic-btn" class="custom-btn" type="button" style="width: 200px;">Take a Picture of Set Cards</button>
+			<button id="load-example-btn" class="custom-btn" type="button" style="width: 180px;">Load Example</button>
+		</div>
+	</div>
 
-	<img class="invisible" id="imageView" src="" alt="set image" >
-	<canvas class="invisible" id="canvasOutput"></canvas>
-	<button id="returnButton" style="display: none"></button>
+
+	<div id="view-screen" style="display: none;">
+		<img class="invisible" id="image-src" src="" alt="set image" >
+		<canvas id="canvas-out"></canvas>
+		<button id="return-btn"></button>
+		<div id="snackbar"></div>
+	</div>
 
 	<script src="js/shapetype.js"></script>
 	<script src="js/setshape.js"></script>
