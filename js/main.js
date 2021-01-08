@@ -1,6 +1,7 @@
 let fileInput = document.getElementById("file-input");
 let takePicButton = document.getElementById("take-pic-btn");
 let loadExampleButton = document.getElementById("load-example-btn");
+let githubButton = document.getElementById("github-btn");
 
 let imageSource = document.getElementById("image-src");
 let canvas = document.getElementById("canvas-out");

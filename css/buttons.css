@@ -53,3 +53,32 @@
 	opacity: 0.75;
 	box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
 }
+
+#github-btn {
+
+	height: 48px;
+	width: 48px;
+
+	background-image: url('icon/GitHub-Mark-64px.png');
+	background-size: 48px 48px;
+	background-color: #ffffff;
+
+	border: none;
+	border-radius: 9999px;
+
+	cursor: pointer;
+	outline: none;
+
+	/*position: absolute;*/
+	/*top: 15px;*/
+	/*right: 15px;*/
+
+	box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+	transition: all 0.3s ease 0s;
+}
+
+#github-btn:hover {
+	background-color: #2EE59D;
+	box-shadow: 0 15px 20px rgba(46, 229, 157, 0.4);
+	color: #fff;
+}
