@@ -1,3 +1,4 @@
+
 class ShapeType {
 
 	constructor(shape = undefined, color = undefined, shading = undefined) {

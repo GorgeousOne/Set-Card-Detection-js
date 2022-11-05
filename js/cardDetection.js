@@ -1,6 +1,5 @@
 
 function detectSetCards(image) {
-
 	let grayImg = getImgBlurredGray(image);
 	let contours = findContours(grayImg);
 
@@ -21,7 +20,6 @@ function detectSetCards(image) {
 }
 
 function getImgBlurredGray(img, kernelSize = 5) {
-
 	let blurredImg = new cv.Mat();
 	let grayImg = new cv.Mat();
 
@@ -33,7 +31,6 @@ function getImgBlurredGray(img, kernelSize = 5) {
 }
 
 function findContours(imgGray) {
-
 	let imgThreshed = new cv.Mat();
 	let contours = new cv.MatVector();
 	let hierarchy = new cv.Mat();
@@ -47,7 +44,6 @@ function findContours(imgGray) {
 }
 
 function findPossibleShapes(contours, imgMinLength, canvas) {
-
 	let minContourPoints = imgMinLength * 0.04;
 	let minBoundsSize = imgMinLength * 0.03;
 	let minMinRectSize = imgMinLength * 0.025;
@@ -57,8 +53,7 @@ function findPossibleShapes(contours, imgMinLength, canvas) {
 
 	let possibleShapes = [];
 
-	for (let i = 0; i < contours.size(); i++) {
-
+	for (let i = 0; i < contours.size(); ++i) {
 		let contour = contours.get(i);
 		let contourLength = contour.data32S.length;
 
@@ -66,7 +61,6 @@ function findPossibleShapes(contours, imgMinLength, canvas) {
 		if (contourLength < minContourPoints) {
 			continue;
 		}
-
 		let boundingRect = cv.boundingRect(contour);
 
 		// ignore small dots
@@ -74,7 +68,6 @@ function findPossibleShapes(contours, imgMinLength, canvas) {
 			// cv.drawContours(canvas, contours, i, [0, 0, 0, 255], 1, cv.LINE_8);
 			continue;
 		}
-
 		let minRect = cv.minAreaRect(contour);
 		let rectWidth = minRect.size.width;
 		let rectHeight = minRect.size.height;
@@ -84,19 +77,16 @@ function findPossibleShapes(contours, imgMinLength, canvas) {
 			// cv.drawContours(canvas, contours, i, [128, 0, 128, 255], 1, cv.LINE_8);
 			continue;
 		}
-
 		if (rectWidth > maxMinRectSize && rectHeight > maxMinRectSize) {
 			//blue - minrect too large
 			// cv.drawContours(canvas, contours, i, [0, 0, 255, 255], 1, cv.LINE_8);
 			continue;
 		}
-
 		if (!ratioFits(minRect)) {
 			//green - minrect ratio unproportional
 			// cv.drawContours(canvas, contours, i, [0, 128, 0, 255], 1, cv.LINE_8);
 			continue;
 		}
-
 		let area = cv.contourArea(contour);
 		let shapeExtent = area / (rectWidth * rectHeight);
 
@@ -111,16 +101,13 @@ function findPossibleShapes(contours, imgMinLength, canvas) {
 			// cv.drawContours(canvas, contours, i, [255, 0, 0, 255], 1, cv.LINE_8);
 			continue;
 		}
-
 		// cv.drawContours(canvas, contours, i, white, 2, cv.LINE_8);
 		let shape = new SetShape(contour, minRect);
 		shape.shapeType.shape = findShapeType(shapeExtent);
 		shape.parentContour = growContour(shape.contour, shape.minLength * 0.2);
 		shape.childContour = growContour(shape.contour, shape.minLength * -0.1);
-
 		possibleShapes.push(shape);
 	}
-
 	return possibleShapes;
 }
 
@@ -143,7 +130,6 @@ function findShapeType(boundsExtent) {
 
 //deletes all shapes that are with one point inside another shape
 function filterActualShapes(shapes) {
-
 	let uniqueShapes = [];
 
 	for (let shape of shapes) {
@@ -153,7 +139,6 @@ function filterActualShapes(shapes) {
 			if (shape === other) {
 				continue;
 			}
-
 			let pointX = shape.contour.data32S[0];
 			let pointY = shape.contour.data32S[1];
 
@@ -162,7 +147,6 @@ function filterActualShapes(shapes) {
 				break;
 			}
 		}
-
 		if (isUnique) {
 			uniqueShapes.push(shape);
 		}
@@ -172,7 +156,6 @@ function filterActualShapes(shapes) {
 
 //Returns a copy of the contour with every point expanded outwards by the given pixels (negative pixels for inwards).
 function growContour(contour, pixels) {
-
 	let dataLength = contour.data32S.length;
 	let newContour = new cv.Mat(dataLength/2, 2, cv.CV_32S);
 
@@ -181,7 +164,6 @@ function growContour(contour, pixels) {
 	let nextPoint = getContourPoint(contour, 4);
 
 	for (let i = 6; i < dataLength + 6; i += 2) {
-
 		//predecessor and successor of a point are used to determine the direction to expand towards
 		let dist = getDistVec(prevPoint, nextPoint);
 
@@ -190,7 +172,6 @@ function growContour(contour, pixels) {
 			newContour.data32S[i % dataLength] = Math.floor(point[0] + pixels * facing[0]);
 			newContour.data32S[(i + 1) % dataLength] = Math.floor(point[1] + pixels * facing[1]);
 		}
-
 		prevPoint = point;
 		point = nextPoint;
 		nextPoint = getContourPoint(contour, i % dataLength);
@@ -225,7 +206,6 @@ let white = [255, 255, 255, 255];
 let black = [0, 0, 0, 255];
 
 function findShapeColorsAndShading(shapes, coloredImg) {
-
 	let imgSize = coloredImg.size();
 	let imgWidth = imgSize.width;
 	let imgHeight = imgSize.height;
@@ -247,7 +227,6 @@ function findShapeColorsAndShading(shapes, coloredImg) {
 			matVec.delete();
 			continue;
 		}
-
 		let roi = coloredImg.roi(rect);
 		let roiSize = roi.size();
 		let mask = new cv.Mat.zeros(roiSize.height, roiSize.width, cv.CV_8U);
@@ -296,7 +275,6 @@ function fixWhiteBalance(shapes) {
 		avgG += unbalancedWhite[1];
 		avgB += unbalancedWhite[2];
 	}
-
 	let shapeCount = shapes.length;
 	avgR /= shapeCount;
 	avgG /= shapeCount;
@@ -305,11 +283,9 @@ function fixWhiteBalance(shapes) {
 	//the gamma corrected version doesn't seem to make any difference for the hue of colors
 	// let avgGray =  0.2989 * avgR + 0.5870 * avgG + 0.1140 * avgB;
 	let avgGray =  (avgR + avgG + avgB) / 3;
-
 	let diffR = avgR - avgGray;
 	let diffG = avgG - avgGray;
 	let diffB = avgB - avgGray;
-
 	// console.log(Math.round(avgR), "r", Math.round(diffR));
 	// console.log(Math.round(avgG), "g", Math.round(diffG));
 	// console.log(Math.round(avgB), "b", Math.round(diffB));
@@ -339,7 +315,6 @@ function findShapeColor(hlsColor) {
 }
 
 function findShading(hslColorInside, hslColorOutside) {
-
 	let fallOff = hslColorOutside[2] - hslColorInside[2];
 
 	if (fallOff < 0.04) {
@@ -352,12 +327,10 @@ function findShading(hslColorInside, hslColorOutside) {
 }
 
 function findSetCards(shapes, canvas) {
-
 	let linkedShapes = [];
 	let foundCards = [];
 
-	for (let i = 0; i < shapes.length; i++) {
-
+	for (let i = 0; i < shapes.length; ++i) {
 		let shape = shapes[i];
 		let isShapeLinked = linkedShapes.includes(shape);
 
@@ -371,7 +344,6 @@ function findSetCards(shapes, canvas) {
 			if (!other.shapeType.equals(shape.shapeType)) {
 				continue;
 			}
-
 			let midDistSquared = distSquared(shape.minRect.center, other.minRect.center);
 			// cv.circle(canvas, mid, Math.sqrt(midDistSquared), [255, 0, 0, 255], 1)
 
@@ -381,7 +353,6 @@ function findSetCards(shapes, canvas) {
 				isShapeLinked = true;
 			}
 		}
-
 		if (!isShapeLinked) {
 			foundCards.push(new SetCard(shape.shapeType, [shape]));
 		}
@@ -394,9 +365,7 @@ function distSquared(p0, p1) {
 }
 
 function addShapesToCards(cards, shape, otherShape) {
-
 	for (let card of cards) {
-
 		if (card.shapes.includes(shape)) {
 			card.shapes.push(otherShape);
 			return;

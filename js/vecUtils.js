@@ -14,7 +14,6 @@ function normVec(vec) {
 	return vec
 }
 
-
 function subVec(vec, other) {
 	vec.x -= other.x;
 	vec.y -= other.y;

@@ -1,3 +1,4 @@
+
 let fileInput = document.getElementById("file-input");
 let takePicButton = document.getElementById("take-pic-btn");
 let loadExampleButton = document.getElementById("load-example-btn");
@@ -15,15 +16,13 @@ let exampleIndex = 0;
 let exampleCount = 6;
 
 loadExampleButton.addEventListener("click", function () {
-
 	imageSource.src = "res/test" + (10 + exampleIndex) + ".jpg";
-	exampleIndex++;
+	++exampleIndex;
 	exampleIndex %= exampleCount;
 	toggleScreen();
 });
 
 fileInput.addEventListener("change", function () {
-
 	if (fileInput.value) {
 		toggleScreen();
 		imageSource.src = URL.createObjectURL(fileInput.files[0]);
@@ -37,7 +36,6 @@ returnButton.addEventListener("click", function () {
 let isStartScreenVisible = true;
 
 function toggleScreen() {
-
 	if (isStartScreenVisible) {
 		document.getElementById("main-menu").style.display = "none";
 		document.getElementById("view-screen").style.display = "block";
@@ -51,12 +49,10 @@ function toggleScreen() {
 		document.body.style.backgroundColor = "#fff";
 		isAnalysisVisible = false;
 	}
-
 	isStartScreenVisible = !isStartScreenVisible;
 }
 
 function showSnackBar(text) {
-
 	let snackbar = document.getElementById("snackbar");
 	snackbar.innerText = text;
 	snackbar.className = "show";
@@ -69,11 +65,9 @@ let scaledImg;
 let analyseImg;
 
 imageSource.addEventListener("load", function () {
-
 	let img = cv.imread(imageSource);
 	scaledImg = resizeImg(img);
 	analyseImg = scaledImg.clone();
-
 	let cards;
 
 	try {
@@ -81,15 +75,12 @@ imageSource.addEventListener("load", function () {
 
 		if (cards.length === 0) {
 			showSnackBar("Could not find any cards :(");
-
 		} else {
-
 			let sets = findSets(cards);
 
 			if (sets.length === 0) {
 				showSnackBar("Could not find any sets :(");
 			}
-
 			console.log(sets.length, "found sets");
 			console.log(sets);
 
@@ -97,11 +88,9 @@ imageSource.addEventListener("load", function () {
 			displayCards(cards, analyseImg);
 			displayShapes(cards, analyseImg);
 		}
-
 	} catch (error) {
 		showSnackBar("An error has occurred :/");
 	}
-
 	cv.imshow("canvas-out", scaledImg);
 	canvas.style.display = "block";
 });
@@ -113,22 +102,18 @@ canvas.addEventListener('click', function () {
 let isAnalysisVisible = false;
 
 function toggleImageView() {
-
 	if (analyseImg === undefined) {
 		return;
 	}
-
 	if (isAnalysisVisible) {
 		cv.imshow("canvas-out", scaledImg);
 	} else {
 		cv.imshow("canvas-out", analyseImg);
 	}
-
 	isAnalysisVisible = !isAnalysisVisible;
 }
 
 function resizeImg(img) {
-
 	let imgSize = img.size();
 	let imgWidth = imgSize.width;
 	let imgHeight = imgSize.height;
@@ -143,14 +128,13 @@ function resizeImg(img) {
 		img.delete();
 		return imgResized;
 
-	} else
+	} else {
 		return img;
+	}
 }
 
 function displayShapes(cards, image) {
-
 	for (let card of cards) {
-
 		for (let shape of card.shapes) {
 
 			let mid = shape.minRect.center;
@@ -170,20 +154,17 @@ function displayShapes(cards, image) {
 }
 
 function displayCards(cards, image) {
-
 	let colors = [];
 
-	for (let i = 0; i < cards.length; i++) {
+	for (let i = 0; i < cards.length; ++i) {
 		colors.push(hslToBgr(i / cards.length, Math.random() * 0.3 + 0.7, 0.5));
 	}
-
-	for (let j = 0; j < cards.length; j++) {
-
+	for (let j = 0; j < cards.length; ++j) {
 		let card = cards[j];
 		let matVec = new cv.MatVector();
 		let rndColor = colors[j];
 
-		for (let i = 0; i < card.shapes.length; i++) {
+		for (let i = 0; i < card.shapes.length; ++i) {
 			matVec.push_back(card.shapes[i].contour);
 			cv.drawContours(image, matVec, i, rndColor, 2, cv.LINE_8);
 		}
@@ -192,15 +173,12 @@ function displayCards(cards, image) {
 }
 
 function displaySets(sets, image) {
-
 	let colors = [];
 
-	for (let i = 0; i < sets.length; i++) {
+	for (let i = 0; i < sets.length; ++i) {
 		colors.push(hslToBgr(i / sets.length, Math.random() * 0.3 + 0.7, 0.5));
 	}
-
-	for (let j = 0; j < sets.length; j++) {
-
+	for (let j = 0; j < sets.length; ++j) {
 		let set = sets[j];
 		let rndColor = colors[j];
 
@@ -220,7 +198,6 @@ function displaySets(sets, image) {
 			} else {
 				drawLineBetween(set[2], set[0], image, rndColor, 3);
 			}
-
 		} else {
 			drawLineBetween(set[1], set[2], image, rndColor, 3);
 
@@ -234,7 +211,6 @@ function displaySets(sets, image) {
 }
 
 function drawLineBetween(card1, card2, image, color, width) {
-
 	let mid1 = card1.mid();
 	let mid2 = card2.mid();
 

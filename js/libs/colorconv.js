@@ -8,7 +8,6 @@
  * @return  {Array}                  The HSL representation
  */
 function rgbToHsl(rgbColor) {
-
 	let red = rgbColor[0] / 255;
 	let green = rgbColor[1] / 255;
 	let blue = rgbColor[2] / 255;
@@ -19,7 +18,6 @@ function rgbToHsl(rgbColor) {
 
 	if (max === min) {
 		hue = sat = 0; // achromatic
-
 	} else {
 		let range = max - min;
 		sat = light > 0.5 ? range / (2 - max - min) : range / (max + min);
@@ -36,7 +34,6 @@ function rgbToHsl(rgbColor) {
 		}
 		hue /= 6;
 	}
-
 	return [hue, sat, light];
 }
 
@@ -54,9 +51,9 @@ function rgbToHsl(rgbColor) {
 function hslToBgr(h, s, l){
 	let r, g, b;
 
-	if(s === 0){
+	if (s === 0) {
 		r = g = b = l; // achromatic
-	}else{
+	} else {
 		let hue2rgb = function hue2rgb(p, q, t){
 			if(t < 0) t += 1;
 			if(t > 1) t -= 1;
@@ -65,13 +62,11 @@ function hslToBgr(h, s, l){
 			if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
 			return p;
 		};
-
 		let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
 		let p = 2 * l - q;
 		r = hue2rgb(p, q, h + 1/3);
 		g = hue2rgb(p, q, h);
 		b = hue2rgb(p, q, h - 1/3);
 	}
-
 	return [Math.round(b * 255), Math.round(g * 255), Math.round(r * 255), 255];
 }

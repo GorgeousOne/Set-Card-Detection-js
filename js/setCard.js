@@ -1,3 +1,4 @@
+
 class SetCard {
 
 	constructor(shapeType, shapes = undefined) {
@@ -15,7 +16,6 @@ class SetCard {
 		for (let shape of this.shapes) {
 			addVec(center, shape.minRect.center);
 		}
-
 		multVec(center, 1 / this.shapes.length)
 		return center;
 	}

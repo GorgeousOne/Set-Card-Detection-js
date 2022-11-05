@@ -2,9 +2,8 @@
 function findSets(cards) {
 	let sets = [];
 
-	for (let i = 0; i < cards.length - 2; i++) {
+	for (let i = 0; i < cards.length - 2; ++i) {
 		for (let k = i + 1; k < cards.length - 1; k++) {
-
 			let card1 = cards[i];
 			let card2 = cards[k];
 			let setRule = getSetRule(card1, card2);
@@ -26,7 +25,6 @@ function findSets(cards) {
 }
 
 function getSetRule(card1, card2) {
-
 	let shapeType1 = card1.shapeType;
 	let shapeType2 = card2.shapeType;
 
@@ -39,8 +37,7 @@ function getSetRule(card1, card2) {
 }
 
 function doRulesMatch(setRule1, setRule2) {
-
-	for (let i = 0; i < setRule1.length; i++) {
+	for (let i = 0; i < setRule1.length; ++i) {
 		if (setRule1[i] !== setRule2[i]) {
 			return false;
 		}

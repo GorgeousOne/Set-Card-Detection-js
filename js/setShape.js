@@ -2,7 +2,6 @@
 class SetShape {
 
 	constructor(contour, mineRect, shapeType = undefined, childContour = undefined, parentContour = undefined) {
-
 		this.shapeType = shapeType === undefined ? new ShapeType() : shapeType;
 
 		this.minRect = mineRect;
